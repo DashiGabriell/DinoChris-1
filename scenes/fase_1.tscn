@@ -1,0 +1,259 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/fase.gd" id="1_fase"]
+[ext_resource type="PackedScene" path="res://scenes/jogador.tscn" id="2_jogador"]
+[ext_resource type="PackedScene" path="res://scenes/caixa.tscn" id="3_caixa"]
+[ext_resource type="PackedScene" path="res://scenes/coletavel.tscn" id="4_coletavel"]
+[ext_resource type="PackedScene" path="res://scenes/checkpoint.tscn" id="5_checkpoint"]
+[ext_resource type="Script" path="res://scripts/zona_queda.gd" id="6_zona"]
+[ext_resource type="Script" path="res://scripts/fim_fase.gd" id="7_fim"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial_1"]
+sky_top_color = Color(0.19, 0.42, 0.8, 1)
+sky_horizon_color = Color(0.74, 0.85, 0.95, 1)
+ground_bottom_color = Color(0.24, 0.33, 0.22, 1)
+ground_horizon_color = Color(0.7, 0.8, 0.9, 1)
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("SkyMaterial_1")
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky = SubResource("Sky_1")
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.72, 0.82, 0.9, 1)
+fog_density = 0.012
+
+[sub_resource type="BoxMesh" id="BoxMesh_chao"]
+size = Vector3(10, 1, 150)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chao"]
+size = Vector3(10, 1, 150)
+
+[sub_resource type="StandardMaterial3D" id="Mat_grama"]
+albedo_color = Color(0.32, 0.6, 0.26, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_trilha"]
+size = Vector3(3.2, 0.04, 150)
+
+[sub_resource type="StandardMaterial3D" id="Mat_areia"]
+albedo_color = Color(0.8, 0.7, 0.48, 1)
+roughness = 1.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_parede"]
+size = Vector3(0.6, 5, 150)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_parede"]
+size = Vector3(0.6, 5, 150)
+
+[sub_resource type="StandardMaterial3D" id="Mat_pedra"]
+albedo_color = Color(0.42, 0.4, 0.38, 1)
+roughness = 1.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_zona"]
+size = Vector3(40, 6, 170)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fim"]
+size = Vector3(12, 6, 2)
+
+[node name="Fase1" type="Node3D"]
+script = ExtResource("1_fase")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="Sol" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-50, -35, 0)
+shadow_enabled = true
+
+[node name="Chao" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.5, -65)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Malha" type="MeshInstance3D" parent="Chao"]
+mesh = SubResource("BoxMesh_chao")
+material_override = SubResource("Mat_grama")
+
+[node name="Colisao" type="CollisionShape3D" parent="Chao"]
+shape = SubResource("BoxShape3D_chao")
+
+[node name="Trilha" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.02, -65)
+mesh = SubResource("BoxMesh_trilha")
+material_override = SubResource("Mat_areia")
+
+[node name="ParedeEsquerda" type="StaticBody3D" parent="."]
+position = Vector3(5.3, 2.5, -65)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Malha" type="MeshInstance3D" parent="ParedeEsquerda"]
+mesh = SubResource("BoxMesh_parede")
+material_override = SubResource("Mat_pedra")
+
+[node name="Colisao" type="CollisionShape3D" parent="ParedeEsquerda"]
+shape = SubResource("BoxShape3D_parede")
+
+[node name="ParedeDireita" type="StaticBody3D" parent="."]
+position = Vector3(-5.3, 2.5, -65)
+collision_layer = 1
+collision_mask = 0
+
+[node name="Malha" type="MeshInstance3D" parent="ParedeDireita"]
+mesh = SubResource("BoxMesh_parede")
+material_override = SubResource("Mat_pedra")
+
+[node name="Colisao" type="CollisionShape3D" parent="ParedeDireita"]
+shape = SubResource("BoxShape3D_parede")
+
+[node name="TRex" parent="." instance=ExtResource("2_jogador")]
+position = Vector3(0, 0.1, 0)
+
+[node name="ZonaDeQueda" type="Area3D" parent="."]
+position = Vector3(0, -7, -65)
+collision_layer = 8
+collision_mask = 2
+script = ExtResource("6_zona")
+
+[node name="Colisao" type="CollisionShape3D" parent="ZonaDeQueda"]
+shape = SubResource("BoxShape3D_zona")
+
+[node name="FimDaFase" type="Area3D" parent="."]
+position = Vector3(0, 2, -137)
+collision_layer = 8
+collision_mask = 2
+script = ExtResource("7_fim")
+
+[node name="Colisao" type="CollisionShape3D" parent="FimDaFase"]
+shape = SubResource("BoxShape3D_fim")
+
+[node name="Objetos" type="Node3D" parent="."]
+
+[node name="Checkpoint1" parent="Objetos" instance=ExtResource("5_checkpoint")]
+position = Vector3(0, 0, -35)
+
+[node name="Checkpoint2" parent="Objetos" instance=ExtResource("5_checkpoint")]
+position = Vector3(0, 0, -70)
+
+[node name="Checkpoint3" parent="Objetos" instance=ExtResource("5_checkpoint")]
+position = Vector3(0, 0, -105)
+
+[node name="Caixa1" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(-2.2, 0.6, -18)
+
+[node name="Caixa2" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(1.8, 0.6, -24)
+
+[node name="Caixa3" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(0, 0.6, -30)
+
+[node name="Caixa4" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(2.6, 0.6, -40)
+
+[node name="Caixa5" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(-2.6, 0.6, -46)
+
+[node name="Caixa6" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(-1.5, 0.6, -55)
+
+[node name="Caixa7" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(1.5, 0.6, -62)
+
+[node name="Caixa8" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(0, 0.6, -75)
+
+[node name="Caixa9" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(-2.8, 0.6, -86)
+
+[node name="Caixa10" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(2.8, 0.6, -86)
+
+[node name="Caixa11" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(1.2, 0.6, -98)
+
+[node name="Caixa12" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(-1.2, 0.6, -104)
+
+[node name="Caixa13" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(0, 0.6, -116)
+
+[node name="Caixa14" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(2.4, 0.6, -124)
+
+[node name="Caixa15" parent="Objetos" instance=ExtResource("3_caixa")]
+position = Vector3(-2.4, 0.6, -124)
+
+[node name="Item1" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(-1.5, 0, -10)
+
+[node name="Item2" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(0, 0, -10)
+
+[node name="Item3" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(1.5, 0, -10)
+
+[node name="Item4" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(-1.5, 0, -34)
+
+[node name="Item5" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(0, 0, -34)
+
+[node name="Item6" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(1.5, 0, -34)
+
+[node name="Item7" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(-3, 0, -50)
+
+[node name="Item8" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(-1.5, 0, -50)
+
+[node name="Item9" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(0, 0, -50)
+
+[node name="Item10" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(0, 0, -68)
+
+[node name="Item11" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(1.5, 0, -68)
+
+[node name="Item12" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(3, 0, -68)
+
+[node name="Item13" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(-1.5, 0, -80)
+
+[node name="Item14" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(0, 0, -80)
+
+[node name="Item15" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(1.5, 0, -80)
+
+[node name="Item16" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(-3, 0, -92)
+
+[node name="Item17" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(-1.5, 0, -92)
+
+[node name="Item18" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(0, 0, -92)
+
+[node name="Item19" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(1.5, 0, -110)
+
+[node name="Item20" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(0, 0, -110)
+
+[node name="Item21" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(-1.5, 0, -110)
+
+[node name="Item22" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(-1.5, 0, -130)
+
+[node name="Item23" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(0, 0, -130)
+
+[node name="Item24" parent="Objetos" instance=ExtResource("4_coletavel")]
+position = Vector3(1.5, 0, -130)

@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/caixa.gd" id="1_caixa"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_caixa"]
+size = Vector3(1.2, 1.2, 1.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_caixa"]
+size = Vector3(1.2, 1.2, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="Mat_madeira"]
+albedo_color = Color(0.78, 0.55, 0.28, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="BoxMesh_trava"]
+size = Vector3(1.26, 0.16, 1.26)
+
+[sub_resource type="StandardMaterial3D" id="Mat_trava"]
+albedo_color = Color(0.45, 0.28, 0.12, 1)
+roughness = 1.0
+
+[node name="Caixa" type="StaticBody3D" groups=["quebravel"]]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("1_caixa")
+
+[node name="Malha" type="Node3D" parent="."]
+
+[node name="Cubo" type="MeshInstance3D" parent="Malha"]
+mesh = SubResource("BoxMesh_caixa")
+material_override = SubResource("Mat_madeira")
+
+[node name="TravaCima" type="MeshInstance3D" parent="Malha"]
+position = Vector3(0, 0.38, 0)
+mesh = SubResource("BoxMesh_trava")
+material_override = SubResource("Mat_trava")
+
+[node name="TravaBaixo" type="MeshInstance3D" parent="Malha"]
+position = Vector3(0, -0.38, 0)
+mesh = SubResource("BoxMesh_trava")
+material_override = SubResource("Mat_trava")
+
+[node name="Colisao" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_caixa")

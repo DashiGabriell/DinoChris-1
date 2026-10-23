@@ -1,0 +1,184 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/jogador.gd" id="1_jogador"]
+[ext_resource type="Script" path="res://scripts/camera_tremer.gd" id="2_camera"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_corpo"]
+radius = 0.55
+height = 2.0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_corpo"]
+radius = 0.52
+height = 1.55
+
+[sub_resource type="SphereMesh" id="SphereMesh_cabeca"]
+radius = 0.5
+height = 1.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_focinho"]
+size = Vector3(0.62, 0.36, 0.55)
+
+[sub_resource type="SphereMesh" id="SphereMesh_olho"]
+radius = 0.13
+height = 0.26
+
+[sub_resource type="SphereMesh" id="SphereMesh_pupila"]
+radius = 0.06
+height = 0.12
+
+[sub_resource type="BoxMesh" id="BoxMesh_dente"]
+size = Vector3(0.07, 0.14, 0.07)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cauda"]
+top_radius = 0.06
+bottom_radius = 0.34
+height = 1.25
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_espinho"]
+top_radius = 0.0
+bottom_radius = 0.16
+height = 0.42
+
+[sub_resource type="BoxMesh" id="BoxMesh_perna"]
+size = Vector3(0.34, 0.7, 0.42)
+
+[sub_resource type="BoxMesh" id="BoxMesh_braco"]
+size = Vector3(0.16, 0.16, 0.38)
+
+[sub_resource type="StandardMaterial3D" id="Mat_verde"]
+albedo_color = Color(0.25, 0.72, 0.32, 1)
+roughness = 0.7
+
+[sub_resource type="StandardMaterial3D" id="Mat_verde_escuro"]
+albedo_color = Color(0.16, 0.5, 0.24, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_branco"]
+albedo_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_preto"]
+albedo_color = Color(0.05, 0.05, 0.05, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_rugido"]
+radius = 3.6
+
+[node name="TRex" type="CharacterBody3D" groups=["jogador"]]
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("1_jogador")
+
+[node name="Corpo" type="CollisionShape3D" parent="."]
+position = Vector3(0, 1, 0)
+shape = SubResource("CapsuleShape3D_corpo")
+
+[node name="Modelo" type="Node3D" parent="."]
+
+[node name="Tronco" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0, 1.15, 0.05)
+rotation_degrees = Vector3(90, 0, 0)
+mesh = SubResource("CapsuleMesh_corpo")
+material_override = SubResource("Mat_verde")
+
+[node name="Cauda" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0, 1.2, 1)
+rotation_degrees = Vector3(96, 0, 0)
+mesh = SubResource("CylinderMesh_cauda")
+material_override = SubResource("Mat_verde")
+
+[node name="Espinho1" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0, 1.6, -0.3)
+mesh = SubResource("CylinderMesh_espinho")
+material_override = SubResource("Mat_verde_escuro")
+
+[node name="Espinho2" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0, 1.65, 0.15)
+mesh = SubResource("CylinderMesh_espinho")
+material_override = SubResource("Mat_verde_escuro")
+
+[node name="Espinho3" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0, 1.55, 0.6)
+mesh = SubResource("CylinderMesh_espinho")
+material_override = SubResource("Mat_verde_escuro")
+
+[node name="Cabeca" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0, 1.72, -0.62)
+scale = Vector3(1, 0.85, 1.15)
+mesh = SubResource("SphereMesh_cabeca")
+material_override = SubResource("Mat_verde")
+
+[node name="Focinho" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0, 1.55, -1.1)
+mesh = SubResource("BoxMesh_focinho")
+material_override = SubResource("Mat_verde_escuro")
+
+[node name="OlhoE" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0.24, 1.86, -0.95)
+mesh = SubResource("SphereMesh_olho")
+material_override = SubResource("Mat_branco")
+
+[node name="OlhoD" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(-0.24, 1.86, -0.95)
+mesh = SubResource("SphereMesh_olho")
+material_override = SubResource("Mat_branco")
+
+[node name="PupilaE" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0.26, 1.87, -1.02)
+mesh = SubResource("SphereMesh_pupila")
+material_override = SubResource("Mat_preto")
+
+[node name="PupilaD" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(-0.22, 1.87, -1.02)
+mesh = SubResource("SphereMesh_pupila")
+material_override = SubResource("Mat_preto")
+
+[node name="DenteE" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0.16, 1.34, -1.18)
+mesh = SubResource("BoxMesh_dente")
+material_override = SubResource("Mat_branco")
+
+[node name="DenteD" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(-0.16, 1.34, -1.18)
+mesh = SubResource("BoxMesh_dente")
+material_override = SubResource("Mat_branco")
+
+[node name="PernaE" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0.34, 0.35, -0.2)
+mesh = SubResource("BoxMesh_perna")
+material_override = SubResource("Mat_verde_escuro")
+
+[node name="PernaD" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(-0.34, 0.35, -0.2)
+mesh = SubResource("BoxMesh_perna")
+material_override = SubResource("Mat_verde_escuro")
+
+[node name="BracoE" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(0.5, 1.2, -0.7)
+mesh = SubResource("BoxMesh_braco")
+material_override = SubResource("Mat_verde_escuro")
+
+[node name="BracoD" type="MeshInstance3D" parent="Modelo"]
+position = Vector3(-0.5, 1.2, -0.7)
+mesh = SubResource("BoxMesh_braco")
+material_override = SubResource("Mat_verde_escuro")
+
+[node name="RugidoArea" type="Area3D" parent="."]
+position = Vector3(0, 1, -0.4)
+collision_layer = 0
+collision_mask = 4
+
+[node name="Colisao" type="CollisionShape3D" parent="RugidoArea"]
+shape = SubResource("SphereShape3D_rugido")
+
+[node name="CameraRig" type="Node3D" parent="."]
+position = Vector3(0, 3.1, 0)
+script = ExtResource("2_camera")
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraRig"]
+position = Vector3(0, 0, 0)
+rotation_degrees = Vector3(-17, 0, 0)
+spring_length = 6.0
+collision_mask = 1
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig/SpringArm3D"]
+fov = 70.0
+far = 400.0
