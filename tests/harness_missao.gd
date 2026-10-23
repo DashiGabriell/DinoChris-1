@@ -65,6 +65,12 @@ func _ready() -> void:
 	_checar(barra.max_value == 9.0, "barra agora vai até 9 (achei %.1f)" % barra.max_value)
 	_checar(total_label.text == "TOTAL: 8", "HUD mostra total 8 (achei '%s')" % total_label.text)
 
+	# a reposição das comidas acontece depois de um process_frame; espera os dois
+	# tipos de frame para não depender da ordem/tempo do motor
+	for i in 8:
+		await get_tree().process_frame
+		await get_tree().physics_frame
+
 	var comidas_depois: int = 0
 	for no in get_tree().get_nodes_in_group("coletavel"):
 		if fase.is_ancestor_of(no):

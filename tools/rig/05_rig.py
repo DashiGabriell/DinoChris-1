@@ -28,6 +28,11 @@ bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 for ob in malhas:
     ob.select_set(False)
 
+# remove a hierarchy vazia que veio do Sketchfab (sobra como nos inuteis no Godot)
+for ob in list(bpy.context.scene.objects):
+    if ob.type not in {"MESH", "LIGHT", "CAMERA"}:
+        bpy.data.objects.remove(ob, do_unlink=True)
+
 # --- 2. normalizar: metros, Z up, +Y frente, pes no chao, quadril na origem ---
 M = (
     Matrix.Translation(Vector((C.ESCALA * C.YC, -C.ESCALA * C.HIP_X, -C.ESCALA * C.GROUND)))

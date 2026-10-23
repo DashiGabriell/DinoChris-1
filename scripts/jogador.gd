@@ -1,7 +1,14 @@
 extends CharacterBody3D
 ## T-Rex do jogador: anda apenas quando o jogador manda,
-## desvia com o analógico, pula e ruge.
+## desvia com o analógico, pula, morde e ruge.
 ## A missão é comer bem: cada comida pega conta para o nível atual.
+##
+## Controles de ataque (dois comandos separados):
+##   rugido  -> onda de choque que quebra as caixas em volta
+##   mordida -> morde a caixa que estiver logo à frente
+##
+## As animações vêm do GLB rigado (trexChrisAnim.glb) e são tocadas por um
+## AnimationPlayer dentro do nó Modelo: Idle, Walk, Run, Jump, Attack e Roar.
 
 signal comida_coletada(no_nivel: int, meta: int, nivel: int, total: int)
 signal subiu_nivel(nivel: int)
@@ -10,6 +17,13 @@ signal reiniciou
 ## Quantas comidas saudáveis o dino precisa por nível (sobe 1 a cada nível).
 const META_BASE: int = 8
 const META_MAXIMA: int = 15
+
+## Velocidade usada como referência para a animação de corrida (m/s).
+## Fica abaixo da velocidade real de propósito: pernas mais rápidas disfarçam
+## melhor o deslize dos pés do que um ciclo lento em velocidade alta.
+const VELOCIDADE_CORRIDA: float = 4.5
+const VELOCIDADE_CAMINHADA: float = 2.4
+const DISTANCIA_MORDIDA: float = 3.6
 
 @export var velocidade_frente: float = 6.0
 @export var velocidade_tras: float = 3.5
@@ -20,6 +34,7 @@ const META_MAXIMA: int = 15
 @export var tempo_rugido: float = 0.45
 
 @onready var modelo: Node3D = $Modelo
+@onready var anim: AnimationPlayer = $Modelo/AnimationPlayer
 @onready var rugido_area: Area3D = $RugidoArea
 @onready var camera_rig: Node3D = $CameraRig
 
@@ -31,30 +46,109 @@ var comida_no_nivel: int = 0
 var total_comida: int = 0
 
 var _rugindo: bool = false
-var _tempo_animacao: float = 0.0
+var _acao: String = ""
 var _tempo_passo: float = 0.0
-var _base_modelo: Vector3
 var _movendo: bool = false
 
 
 func _ready() -> void:
 	posicao_inicial = global_position
 	checkpoint = posicao_inicial
-	_base_modelo = modelo.position
 	rugido_area.monitoring = true
+	_preparar_animacoes()
 
 
+# ---------------------------------------------------------------- animação
+func _preparar_animacoes() -> void:
+	if anim == null:
+		push_warning("AnimationPlayer nao encontrado em Modelo")
+		return
+	for nome in ["Idle", "Walk", "Run"]:
+		if anim.has_animation(nome):
+			anim.get_animation(nome).loop_mode = Animation.LOOP_LINEAR
+	for nome in ["Jump", "Attack", "Roar"]:
+		if anim.has_animation(nome):
+			anim.get_animation(nome).loop_mode = Animation.LOOP_NONE
+	anim.animation_finished.connect(_ao_terminar_animacao)
+	anim.play("Idle", 0.0)
+
+
+func _tocar(nome: String, mistura: float = 0.18) -> void:
+	if anim == null or not anim.has_animation(nome):
+		return
+	if anim.current_animation == nome:
+		return
+	anim.play(nome, mistura)
+
+
+func _iniciar_acao(nome: String, velocidade_anim: float = 1.0, mistura: float = 0.06) -> void:
+	if anim == null or not anim.has_animation(nome):
+		return
+	_acao = nome
+	anim.speed_scale = velocidade_anim
+	anim.play(nome, mistura)
+
+
+func _ao_terminar_animacao(nome: String) -> void:
+	if nome != _acao:
+		return
+	_acao = ""
+	if anim != null:
+		anim.speed_scale = 1.0
+	_atualizar_animacao(0.0)
+
+
+func _atualizar_animacao(delta: float) -> void:
+	if anim == null:
+		return
+
+	# No ar sem ação declarada (caiu de uma beirada): segura a pose aérea.
+	if not is_on_floor():
+		if _acao == "":
+			_acao = "queda"
+			anim.speed_scale = 1.0
+			anim.play("Jump", 0.1)
+			anim.seek(0.45, true)
+			anim.speed_scale = 0.0
+		return
+	if _acao == "queda":
+		_acao = ""
+		anim.speed_scale = 1.0
+
+	if _acao != "":
+		return
+
+	var velocidade: float = Vector2(velocity.x, velocity.z).length()
+	if velocidade < 0.2:
+		_tocar("Idle")
+		anim.speed_scale = 1.0
+		_tempo_passo = 0.0
+		return
+
+	var correndo: bool = velocidade > 4.5
+	_tocar("Run" if correndo else "Walk")
+	var referencia: float = VELOCIDADE_CORRIDA if correndo else VELOCIDADE_CAMINHADA
+	anim.speed_scale = clampf(velocidade / referencia, 0.65, 1.6)
+
+	# passos sincronizados com o ciclo
+	_tempo_passo += delta * (velocidade / referencia)
+	if _tempo_passo >= 0.32:
+		_tempo_passo = 0.0
+		Sons.tocar("passo", -8.0, randf_range(0.9, 1.1))
+
+
+# ---------------------------------------------------------------- laço
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= gravidade * delta
 	elif velocity.y < 0.0:
 		velocity.y = 0.0
 
-	if Input.is_action_just_pressed("pular") and is_on_floor():
+	if Input.is_action_just_pressed("pular") and is_on_floor() and _acao == "":
 		velocity.y = forca_pulo
 		Sons.tocar("pulo")
-		modelo.scale = Vector3(1.12, 0.85, 1.12)
-		create_tween().tween_property(modelo, "scale", Vector3.ONE, 0.2)
+		# 1.35x deixa o clipe com a mesma duração do pulo físico (~0.62 s)
+		_iniciar_acao("Jump", 1.35)
 
 	var direcao: float = Input.get_axis("mover_esquerda", "mover_direita")
 	var frente: float = Input.get_axis("mover_tras", "mover_frente")
@@ -71,9 +165,11 @@ func _physics_process(delta: float) -> void:
 	global_position.z = minf(global_position.z, posicao_inicial.z + limite_tras)
 
 	_quebrar_no_impacto()
-	_animar(delta)
+	_atualizar_animacao(delta)
 
-	if Input.is_action_just_pressed("rugido") and not _rugindo:
+	if Input.is_action_just_pressed("mordida") and _acao == "" and is_on_floor():
+		_morder(_alvo_na_frente())
+	elif Input.is_action_just_pressed("rugido") and not _rugindo and _acao == "":
 		executar_rugido()
 
 
@@ -84,10 +180,48 @@ func _quebrar_no_impacto() -> void:
 			alvo.call("quebrar")
 
 
+# ---------------------------------------------------------------- ataque
+func _alvo_na_frente() -> Node3D:
+	var frente := -global_transform.basis.z
+	frente.y = 0.0
+	frente = frente.normalized()
+	var melhor: Node3D = null
+	var melhor_distancia: float = DISTANCIA_MORDIDA
+	for corpo in get_tree().get_nodes_in_group("quebravel"):
+		var alvo := corpo as Node3D
+		if alvo == null:
+			continue
+		var diferenca := alvo.global_position - global_position
+		diferenca.y = 0.0
+		var distancia := diferenca.length()
+		if distancia > melhor_distancia or distancia < 0.01:
+			continue
+		if diferenca.normalized().dot(frente) < 0.35:
+			continue
+		melhor = alvo
+		melhor_distancia = distancia
+	return melhor
+
+
+func _morder(alvo: Node3D = null) -> void:
+	if _acao != "" or not is_on_floor():
+		return
+	# a animação começa sempre; se não houver alvo, é uma mordida no ar
+	_iniciar_acao("Attack", 1.1)
+	if alvo == null:
+		return
+	Sons.tocar("caixa", -4.0, 1.35)
+	await get_tree().create_timer(0.22).timeout
+	if is_instance_valid(alvo) and alvo.has_method("quebrar"):
+		alvo.call("quebrar")
+		camera_rig.call("tremer", 0.1, 0.2)
+
+
 func executar_rugido() -> void:
 	if _rugindo:
 		return
 	_rugindo = true
+	_iniciar_acao("Roar", 1.2)
 
 	Sons.tocar("rugido")
 	camera_rig.call("tremer", 0.18, 0.3)
@@ -133,28 +267,7 @@ func _onda_de_choque() -> void:
 	tween.chain().tween_callback(onda.queue_free)
 
 
-func _animar(delta: float) -> void:
-	_tempo_animacao += delta
-	if not is_on_floor():
-		modelo.position.y = _base_modelo.y
-		modelo.rotation.z = 0.0
-		return
-
-	if not _movendo:
-		# Parado esperando o jogador: so uma respirada leve.
-		modelo.position.y = _base_modelo.y + sin(_tempo_animacao * 2.0) * 0.02
-		modelo.rotation.z = 0.0
-		_tempo_passo = 0.0
-		return
-
-	modelo.position.y = _base_modelo.y + absf(sin(_tempo_animacao * 9.0)) * 0.1
-	modelo.rotation.z = sin(_tempo_animacao * 9.0) * 0.03
-	_tempo_passo += delta
-	if _tempo_passo >= 0.32:
-		_tempo_passo = 0.0
-		Sons.tocar("passo", -8.0, randf_range(0.9, 1.1))
-
-
+# ---------------------------------------------------------------- progresso
 func coletar(_tipo: int = 0) -> void:
 	total_comida += 1
 	comida_no_nivel += 1

@@ -305,7 +305,7 @@ Já existe uma fatia vertical jogável: tela inicial com nome do jogador, corred
 2. Abra o Godot → **Importar** → selecione `C:\Users\Gabriell\Documents\DinoChris\project.godot`.
 3. Aperte **F5**. Abre a tela inicial: **COMEÇAR** entra na fase e **SEU NOME** salva o nome do jogador.
 
-Com o controle plugado, o Godot já reconhece o PlayStation automaticamente: analógico esquerdo (ou D-pad) para andar para os lados, frente e trás; X/B para pular; Quadrado/Triângulo para rugir. No teclado: W/A/S/D (ou setas) para andar, Espaço para pular, E para rugir. O dino não sai do lugar sozinho.
+Com o controle plugado, o Godot já reconhece o PlayStation automaticamente: analógico esquerdo (ou D-pad) para andar para os lados, frente e trás; X/B para pular; Quadrado/Triângulo para rugir; **L1 ou R1 para morder**. No teclado: W/A/S/D (ou setas) para andar, Espaço para pular, **E para rugir**, **F para morder**. O dino não sai do lugar sozinho.
 
 ### Tela inicial
 
@@ -322,7 +322,11 @@ Com o controle plugado, o Godot já reconhece o PlayStation automaticamente: ana
 | `project.godot` | Configuração, Input Map, camadas de física, autoloads `Dados` e `Sons` |
 | `scenes/tela_inicial.tscn` | Menu: fundo, título, botões COMEÇAR / SEU NOME e painel de digitação |
 | `scenes/fase_1.tscn` | Corredor, luz, céu, caixas, comidas, checkpoints e HUD (nome + missão) |
-| `scenes/jogador.tscn` | T-Rex (CharacterBody3D) + câmera com SpringArm3D |
+| `scenes/jogador.tscn` | T-Rex (CharacterBody3D) + modelo rigado + câmera com SpringArm3D |
+| `assets/modelos/jogador/trexChrisAnim.glb` | Dino rigado (23 ossos) com as 6 animações — é o que o jogo usa |
+| `assets/modelos/jogador/trexChris.glb` | Modelo original sem rig (fonte, não é usado em cena) |
+| `assets/modelos/props/arvores.glb` | Três modelos de árvore low-poly usados na decoração da fase |
+| `tools/rig/*.py` | Pipeline Blender que gera o rig, as animações e o GLB |
 | `scenes/caixa.tscn` | Caixa quebrável (StaticBody3D, grupo `quebravel`) |
 | `scenes/coletavel.tscn` | Comida saudável (Area3D, grupo `coletavel`, tipo `tipo`) |
 | `scenes/checkpoint.tscn` | Portão que salva a posição de respawn |
@@ -336,9 +340,99 @@ Com o controle plugado, o Godot já reconhece o PlayStation automaticamente: ana
 | `scripts/sons.gd` | Autoload que toca os efeitos (2D e 3D) |
 | `audio/*.wav` | Sons gerados por síntese (sem direitos autorais) |
 | `tests/harness.tscn` | Teste automático de fumaça da fase |
+| `tests/harness_mordida.tscn` | Teste dos ataques: comando de mordida, rugido, mordida no ar e troca de animações |
+| `tests/harness_ceu.tscn` | Teste do céu HDRI: panorama, névoa fora do céu, tonemap e sombra |
+| `tests/captura.tscn` | Roda a fase e salva prints do dino em `tools/rig/out/` (QA visual) |
 | `tests/harness_missao.tscn` | Teste da missão: comidas, barra, nível e reposição |
 | `tests/harness_menu.tscn` | Teste da tela inicial (botões, painel e nome) |
 | `tests/integracao_menu.tscn` | Teste COMEÇAR → fase carregada + HUD com o nome |
+
+### Rig e animações do dino
+
+O T-Rex do jogador é um modelo rigado e animado por código, gerado no Blender 5.2 com Python (`bpy`). Tudo o que está em `trexChrisAnim.glb` sai do pipeline em `tools/rig/`.
+
+**Como foi feito**
+
+1. O GLB do Sketchfab (`trexChris.glb`, 44 mil vértices, 10 malhas separadas e nenhum osso) foi medido, redesenhado em metros e alinhado: frente em **-Z** (padrão Godot), pés em **y = 0**, quadril na origem, altura final de **1,9 m**.
+2. A perna direita veio 0,26 m fora do centro no modelo original; foi deslocada para a simetria antes do skinning.
+3. Armature de **23 ossos**: `root`, `hips`, `spine_01`, `spine_02`, `neck`, `head`, `jaw`, `tail_01..04`, `thigh/shin/foot/toe_L|R` e `upperarm/forearm_L|R`.
+4. Skinning por **cadeia de ossos**: cada vértice é projetado ao longo da cadeia daquela malha e o peso é distribuído por arc length com transição suave nas juntas. A raiz da coxa é ancorada ao `hips` para a casca do quadril não abrir quando a perna gira.
+5. As animações são geradas por um solver próprio (`tools/rig/trex_esqueleto.py`): FK em espaço de armature + **IK de 2 ossos** nas pernas, com alvos de pé no chão. Isso mantém os pés plantados e permite autorar passada, pulo e investida em termos de posição de pé, não de ângulo de osso.
+
+**Clipes exportados** (30 fps, nomes iguais no Godot)
+
+| Clipe | Duração | Loop | Uso no jogo |
+|---|---|---|---|
+| `Idle` | 3,0 s | sim | parado |
+| `Walk` | 1,0 s | sim | velocidade até 4,5 m/s |
+| `Run` | 0,67 s | sim | velocidade acima de 4,5 m/s |
+| `Jump` | 0,9 s | não | botão de pulo (toca a 1,35x para casar com o pulo físico) |
+| `Attack` | 0,8 s | não | mordida em caixa próxima |
+| `Roar` | 1,4 s | não | rugido com onda de choque |
+
+**Contrato com o Godot**
+
+- `scenes/jogador.tscn` instancia o GLB como nó `Modelo`; o `AnimationPlayer` fica em `Modelo/AnimationPlayer`.
+- `scripts/jogador.gd` configura os loops em `_ready()`, escolhe Idle/Walk/Run pela velocidade, ajusta `speed_scale` e dispara Jump/Attack/Roar como ações únicas (bloqueiam a locomoção até terminar).
+- **Dois comandos de ataque, separados:**
+  - `rugido` (**E** ou Quadrado/Triângulo) toca `Roar` e quebra tudo que estiver dentro do raio da `RugidoArea`.
+  - `mordida` (**F** ou **L1/R1**) toca `Attack` e quebra a caixa mais à frente, até 3,6 m e dentro de um cone de 70°. No ar o comando é ignorado, para não roubar a animação de pulo; sem alvo, o dino morde o vento mesmo assim.
+- O personagem não tem root motion: quem move é o `CharacterBody3D`, então as animações nunca mudam a posição do nó.
+
+**Regerar depois de mexer no rig ou nas animações**
+
+```powershell
+$b = "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
+& $b --background --python tools/rig/05_rig.py     # armature + skin -> out/trex_rig.blend
+& $b --background --python tools/rig/11_anim.py    # animações + export -> assets/.../trexChrisAnim.glb
+godot --headless --path . --import                 # o Godot reimporta o GLB
+godot --headless --path . res://tests/harness.tscn
+```
+
+Os outros scripts em `tools/rig/` são de inspeção: `01`/`02`/`03` medem o modelo, `04` identifica as partes por cor, `08`/`10`/`15` renderizam poses de teste, `13`/`14` montam a folha de contato de QA e `tests/captura.tscn` tira prints do jogo rodando.
+
+### Céu HDRI
+
+A fase usa o panorama `assets/ceu/ceu-01.exr` (equiretangular 1024×512, pôr do sol sobre a água) como céu e como fonte de luz ambiente.
+
+**Como está montado** (`scenes/fase_1.tscn`)
+
+```
+WorldEnvironment
+└── Environment
+    ├── background_mode = Sky
+    ├── sky → Sky → PanoramaSkyMaterial → panorama = ceu-01.exr
+    ├── sky_rotation = (0, 180°, 0)      # põe o sol/nuvens à frente do corredor
+    ├── background_energy_multiplier = 0.55
+    ├── ambient_light_source = Sky, energia 1.3, sky_contribution 0.85
+    ├── tonemap AgX, exposição 1.1
+    └── fog ligada, densidade 0.0045, sky_affect = 0.0
+```
+
+O `Sol` (DirectionalLight3D) fica com cor quente `(1, 0.9, 0.78)` e energia 1.8, mantendo a sombra do dino.
+
+**A armadilha que quebrou a primeira tentativa:** o padrão de `fog_sky_affect` é **1.0**, e isso faz a névoa **substituir o céu inteiro** por uma cor chapada. O céu aparece como um degradê lavado e nenhum ajuste de tonemap, exposição ou energia resolve — porque o céu nem está sendo desenhado. Com `fog_sky_affect = 0.0` o panorama aparece de verdade. Foi exatamente isso que travou a implementação anterior.
+
+**Para reajustar o visual** (tudo no inspetor do `WorldEnvironment`):
+
+| Quero… | Mexa em |
+|---|---|
+| Céu mais claro/escuro sem mexer na luz | `Background → Energy` |
+| Girar o céu (outra parte do panorama à frente) | `Sky → Sky Rotation Y` |
+| Cena mais quente/fria | cor e energia do nó `Sol` |
+| Menos névoa no fundo | `Fog → Density` (nunca volte o `Sky Affect` acima de 0.1) |
+| Contraste geral | `Tonemap → Mode/Exposure` |
+
+O import do EXR está como textura comprimida com mipmaps ligados (`assets/ceu/ceu-01.exr.import`), que é o que evita cintilação do céu com a câmera em movimento.
+
+### Árvores do cenário
+
+A decoração lateral da fase usa os três modelos low-poly de `assets/modelos/props/arvores.glb` (`Tree1`, `Tree2` e `Tree3`, 742 triângulos no total). `scripts/fase.gd` instancia o GLB uma vez, mede cada árvore e duplica o molde ao longo do corredor, alternando modelo, giro e altura.
+
+- O GLB vem do Sketchfab com o eixo **Z para cima**, o pivô fora do pé do tronco e alturas diferentes (~16 m e ~20 m). O script leva o pé do tronco para a origem e normaliza todas para `ALTURA_ARVORE` (9 m), com ±12% de variação.
+- As árvores ficam **atrás das paredes**, em `x = ±6,5…9 m`, a cada 7–11 m. A copa passa por cima da parede e forma o teto de floresta do corredor.
+- Para mudar o porte da floresta, mexa em `ALTURA_ARVORE` e `VARIACAO_ALTURA` no topo de `scripts/fase.gd`; a distância das paredes e o espaçamento ficam em `_gerar_decoracao()`.
+- Não há colisão: as árvores ficam fora do corredor, então não atrapalham o dino. As samambaias do chão continuam sendo esferas geradas por código.
 
 ### Testes automáticos
 
@@ -347,9 +441,11 @@ godot --headless --path . res://tests/harness.tscn
 godot --headless --path . res://tests/harness_missao.tscn
 godot --headless --path . res://tests/harness_menu.tscn
 godot --headless --path . res://tests/integracao_menu.tscn
+godot --headless --path . res://tests/harness_mordida.tscn
+godot --headless --path . res://tests/harness_ceu.tscn
 ```
 
-O primeiro valida 26 pontos da fase: câmera, dino parado sem input, avanço/recuo manuais, mapeamento de joystick (analógico X/Y, D-pad e botões), pulo, lateral, rugido quebrando caixa, coleta, checkpoints, respawn e limites do corredor. O segundo valida a missão: comidas alternando em 4 tipos, HUD (nível, contador, barra, total), subida de nível e reposição das comidas. O terceiro valida o menu e a persistência do nome. O quarto confirma que **COMEÇAR** troca de cena e que o nome aparece no HUD. Todos saem com código 0 quando passam.
+O primeiro valida 26 pontos da fase: câmera, dino parado sem input, avanço/recuo manuais, mapeamento de joystick (analógico X/Y, D-pad e botões), pulo, lateral, rugido quebrando caixa, coleta, checkpoints, respawn e limites do corredor. O segundo valida a missão: comidas alternando em 4 tipos, HUD (nível, contador, barra, total), subida de nível e reposição das comidas. O terceiro valida o menu e a persistência do nome. O quarto confirma que **COMEÇAR** troca de cena e que o nome aparece no HUD. O quinto valida os ataques e as animações: os 6 clipes importados, loops corretos, mordida mapeada em teclado e controle, mordida quebrando a caixa da frente, rugido sem virar mordida, mordida no ar não interrompendo o pulo, e a troca Idle ↔ Run pela velocidade. O sexto valida o céu: fundo em Sky, material PanoramaSkyMaterial apontando para `ceu-01.exr`, névoa fora do céu (`fog_sky_affect`), tonemap AgX e sol com sombra. Todos saem com código 0 quando passam.
 
 ### Ajustes rápidos (no inspetor, sem código)
 
@@ -366,9 +462,15 @@ O primeiro valida 26 pontos da fase: câmera, dino parado sem input, avanço/rec
 
 ### Próximos passos sugeridos
 
-1. Trocar o dino de primitivas por um modelo 3D / GLB com animações (andar, rugir, pular).
-2. Animação de "comer" ao pegar a comida e um marcador por tipo (carne/fruta/vegetal/água) no HUD.
+1. Animação de "comer" ao pegar a comida (hoje a comida some sem reação do dino).
+2. Rigar e animar o `spinoBob.glb` (inimigo) reaproveitando o mesmo pipeline de `tools/rig/`.
 3. Fase 2 com a perseguição invertida (T-Rex atrás de uma fruta gigante).
 4. Trilha sonora em loop e um "uau" ao pegar checkpoint.
 5. Exportar `.exe` com ícone do T-Rex.
+
+### Pendências conhecidas do rig
+
+- O pescoço abre uma fresta fina quando a cabeça gira muito de lado (as malhas de cabeça e corpo são separadas no modelo original). Só aparece de perto; de câmera de jogo não dá para ver.
+- Em passada larga o ombro da coxa mostra uma dobra interna. Resolver de vez pediria corrective shape keys ou um modelo com edge loops no quadril.
+- Os pés deslizam um pouco em velocidade máxima: o passo do clipe não cobre os 6 m/s de corrida. A `speed_scale` acima de 1,3 disfarça, mas o ajuste definitivo é aumentar o passo do clipe ou reduzir a velocidade do jogo.
 
