@@ -13,6 +13,7 @@ func _ready() -> void:
 		"coletar": load("res://audio/coletar.wav"),
 		"passo": load("res://audio/passo.wav"),
 		"pulo": load("res://audio/pulo.wav"),
+		"nivel": load("res://audio/nivel.wav"),
 	}
 
 

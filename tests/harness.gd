@@ -38,11 +38,38 @@ func _ready() -> void:
 	_checar(itens_antes == 24, "24 coletaveis no grupo (achei %d)" % itens_antes)
 
 	var z_inicial: float = jogador.global_position.z
-	for i in 90:
-		await get_tree().physics_frame
+	await _esperar_fisica(90)
 	_checar(
-		jogador.global_position.z < z_inicial - 6.0,
-		"dino avancou sozinho (dz=%.2f)" % (jogador.global_position.z - z_inicial)
+		absf(jogador.global_position.z - z_inicial) < 0.2,
+		"dino fica parado sem input (dz=%.2f)" % (jogador.global_position.z - z_inicial)
+	)
+
+	Input.action_press("mover_frente")
+	await _esperar_fisica(30)
+	Input.action_release("mover_frente")
+	_checar(
+		jogador.global_position.z < z_inicial - 1.5,
+		"dino avanca quando o jogador manda (dz=%.2f)" % (jogador.global_position.z - z_inicial)
+	)
+
+	var z_antes_tras: float = jogador.global_position.z
+	Input.action_press("mover_tras")
+	await _esperar_fisica(12)
+	Input.action_release("mover_tras")
+	_checar(
+		jogador.global_position.z > z_antes_tras + 0.2,
+		"dino recua com o botao de tras (dz=%.2f)" % (jogador.global_position.z - z_antes_tras)
+	)
+
+	for acao in ["mover_esquerda", "mover_direita", "mover_frente", "mover_tras", "pular", "rugido"]:
+		_checar(_tem_joystick(acao), "joystick mapeado em %s" % acao)
+	_checar(
+		_tem_eixo("mover_esquerda", 0) and _tem_eixo("mover_direita", 0),
+		"analogico esquerdo no eixo X"
+	)
+	_checar(
+		_tem_eixo("mover_frente", 1) and _tem_eixo("mover_tras", 1),
+		"analogico esquerdo no eixo Y"
 	)
 
 	var y_antes: float = jogador.global_position.y
@@ -112,6 +139,20 @@ func _ready() -> void:
 func _esperar_fisica(quadros: int) -> void:
 	for i in quadros:
 		await get_tree().physics_frame
+
+
+func _tem_joystick(acao: String) -> bool:
+	for evento in InputMap.action_get_events(acao):
+		if evento is InputEventJoypadMotion or evento is InputEventJoypadButton:
+			return true
+	return false
+
+
+func _tem_eixo(acao: String, eixo: int) -> bool:
+	for evento in InputMap.action_get_events(acao):
+		if evento is InputEventJoypadMotion and evento.axis == eixo:
+			return true
+	return false
 
 
 func _checar(condicao: bool, descricao: String) -> void:

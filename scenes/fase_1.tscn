@@ -7,19 +7,22 @@
 [ext_resource type="PackedScene" path="res://scenes/checkpoint.tscn" id="5_checkpoint"]
 [ext_resource type="Script" path="res://scripts/zona_queda.gd" id="6_zona"]
 [ext_resource type="Script" path="res://scripts/fim_fase.gd" id="7_fim"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="8_hud"]
+[ext_resource type="Texture2D" uid="uid://chtdxubot5abv" path="res://assets/ceu/ceu-01.exr" id="9_ceu"]
 
-[sub_resource type="ProceduralSkyMaterial" id="SkyMaterial_1"]
-sky_top_color = Color(0.19, 0.42, 0.8, 1)
-sky_horizon_color = Color(0.74, 0.85, 0.95, 1)
-ground_bottom_color = Color(0.24, 0.33, 0.22, 1)
-ground_horizon_color = Color(0.7, 0.8, 0.9, 1)
+[sub_resource type="PanoramaSkyMaterial" id="SkyMaterial_1"]
+panorama = ExtResource("9_ceu")
+energy_multiplier = 1.0
 
 [sub_resource type="Sky" id="Sky_1"]
 sky_material = SubResource("SkyMaterial_1")
+radiance_size = 3
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 2
 sky = SubResource("Sky_1")
+ambient_light_source = 3
+ambient_light_energy = 0.8
 tonemap_mode = 2
 fog_enabled = true
 fog_light_color = Color(0.72, 0.82, 0.9, 1)
@@ -57,6 +60,32 @@ size = Vector3(40, 6, 170)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fim"]
 size = Vector3(12, 6, 2)
+
+[sub_resource type="StyleBoxFlat" id="SB_painel"]
+bg_color = Color(0.03, 0.09, 0.06, 0.82)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.5, 0.9, 0.4, 0.85)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="SB_barra_fundo"]
+bg_color = Color(0.02, 0.05, 0.03, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="SB_barra_cheia"]
+bg_color = Color(0.45, 0.9, 0.35, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="Fase1" type="Node3D"]
 script = ExtResource("1_fase")
@@ -188,72 +217,185 @@ position = Vector3(-2.4, 0.6, -124)
 
 [node name="Item1" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(-1.5, 0, -10)
+tipo = 0
 
 [node name="Item2" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(0, 0, -10)
+tipo = 1
 
 [node name="Item3" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(1.5, 0, -10)
+tipo = 2
 
 [node name="Item4" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(-1.5, 0, -34)
+tipo = 3
 
 [node name="Item5" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(0, 0, -34)
+tipo = 0
 
 [node name="Item6" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(1.5, 0, -34)
+tipo = 1
 
 [node name="Item7" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(-3, 0, -50)
+tipo = 2
 
 [node name="Item8" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(-1.5, 0, -50)
+tipo = 3
 
 [node name="Item9" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(0, 0, -50)
+tipo = 0
 
 [node name="Item10" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(0, 0, -68)
+tipo = 1
 
 [node name="Item11" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(1.5, 0, -68)
+tipo = 2
 
 [node name="Item12" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(3, 0, -68)
+tipo = 3
 
 [node name="Item13" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(-1.5, 0, -80)
+tipo = 0
 
 [node name="Item14" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(0, 0, -80)
+tipo = 1
 
 [node name="Item15" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(1.5, 0, -80)
+tipo = 2
 
 [node name="Item16" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(-3, 0, -92)
+tipo = 3
 
 [node name="Item17" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(-1.5, 0, -92)
+tipo = 0
 
 [node name="Item18" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(0, 0, -92)
+tipo = 1
 
 [node name="Item19" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(1.5, 0, -110)
+tipo = 2
 
 [node name="Item20" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(0, 0, -110)
+tipo = 3
 
 [node name="Item21" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(-1.5, 0, -110)
+tipo = 0
 
 [node name="Item22" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(-1.5, 0, -130)
+tipo = 1
 
 [node name="Item23" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(0, 0, -130)
+tipo = 2
 
 [node name="Item24" parent="Objetos" instance=ExtResource("4_coletavel")]
 position = Vector3(1.5, 0, -130)
+tipo = 3
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("8_hud")
+
+[node name="Nome" type="Label" parent="HUD"]
+offset_left = 28.0
+offset_top = 18.0
+offset_right = 448.0
+offset_bottom = 68.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 32
+
+[node name="Missao" type="PanelContainer" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -404.0
+offset_top = 18.0
+offset_right = -24.0
+offset_bottom = 210.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SB_painel")
+
+[node name="Margem" type="MarginContainer" parent="HUD/Missao"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="Conteudo" type="VBoxContainer" parent="HUD/Missao/Margem"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Nivel" type="Label" parent="HUD/Missao/Margem/Conteudo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.95, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 26
+text = "NÍVEL 1"
+
+[node name="Contador" type="Label" parent="HUD/Missao/Margem/Conteudo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "COMIDA: 0 / 8"
+
+[node name="Barra" type="ProgressBar" parent="HUD/Missao/Margem/Conteudo"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+max_value = 8.0
+show_percentage = false
+theme_override_styles/background = SubResource("SB_barra_fundo")
+theme_override_styles/fill = SubResource("SB_barra_cheia")
+
+[node name="Total" type="Label" parent="HUD/Missao/Margem/Conteudo"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.95, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 20
+text = "TOTAL: 0"
+
+[node name="Aviso" type="Label" parent="HUD"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -360.0
+offset_top = -70.0
+offset_right = 360.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.92, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.16, 0.06, 0.02, 1)
+theme_override_constants/outline_size = 14
+theme_override_font_sizes/font_size = 68
+text = "NÍVEL 2!"
+horizontal_alignment = 1
+vertical_alignment = 1

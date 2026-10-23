@@ -2,3 +2,20 @@
 *.translation
 export_presets.cfg
 export/
+
+# Arquivos gerados pelo pipeline de rig (QA, renders e .blend intermediários)
+tools/rig/out/
+__pycache__/
+*.pyc
+*.blend1
+
+# Scripts temporários de depuração
+tests/tmp_*
+
+# Temporários do importador do Godot
+*.import~*
+*.TMP
+
+# Lixo de sistema
+Thumbs.db
+.DS_Store
