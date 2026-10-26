@@ -181,36 +181,24 @@ Dica: para pedaços voando de verdade, instancie um `RigidBody3D` pequeno (3–5
 
 ## 6. Queda e respawn (o "sem game over")
 
-Nada de morte. Uma `Area3D` grande embaixo da fase detecta a queda e devolve o dino ao último checkpoint.
+Nada de morte e nada de checkpoint fixo: como o corredor é infinito, o próprio gerador guarda onde o dino pisou em chão firme.
 
-```
-ZonaDeQueda (Area3D)              # y abaixo do chão, mask = camada 2
-└── CollisionShape3D (BoxShape3D gigante)
-
-Checkpoint (Area3D)               # mask = camada 2, espalhados pela fase
-└── CollisionShape3D
-```
+- **Ponto seguro**: a cada quadro em que o dino está no chão (e não em cima de uma caixa) e a mais de 2,4 m de qualquer fissura/lava, `scripts/corredor.gd` grava a posição em `TRex.checkpoint`.
+- **Fissura**: o chão tem um vão; se o dino cair abaixo de `ALTURA_QUEDA` (−7 m), volta ao ponto seguro com um anel de poeira, som e tremor de câmera.
+- **Lava**: o rio tem uma `Area3D` (camada 2) logo abaixo da superfície; encostar nela dispara o mesmo resgate, com anel laranja e som grave.
+- **Anti-softlock**: se o jogador segurar o avanço e o dino ficar 3 s sem mudar de `z`, `scripts/fase.gd` também chama `voltar_ao_checkpoint()`.
 
 ```gdscript
-# ZonaDeQueda
-extends Area3D
-
-func _on_body_entered(body: Node3D) -> void:
-	if body.has_method("voltar_ao_checkpoint"):
-		body.voltar_ao_checkpoint()
+func voltar_ao_checkpoint() -> void:
+	global_position = checkpoint
+	velocity = Vector3.ZERO
+	_acao = ""
+	if anim != null:
+		anim.speed_scale = 1.0
+	camera_rig.call("tremer", 0.12, 0.25)
 ```
 
-```gdscript
-# Checkpoint
-extends Area3D
-
-func _on_body_entered(body: Node3D) -> void:
-	if body.has_method("voltar_ao_checkpoint"):
-		body.checkpoint = global_position + Vector3(0, 0.2, 0)
-		$AudioCheckpoint.play()
-```
-
-Regra: coloque checkpoint antes de cada trecho com buraco ou obstáculo. A criança nunca deve repetir mais de ~15 segundos de jogo.
+Regra: a criança nunca repete mais do que o trecho entre o último chão firme e o obstáculo (uns 2,4 m), e não os ~15 s do corredor finito antigo.
 
 ---
 
@@ -220,14 +208,14 @@ Regra: coloque checkpoint antes de cada trecho com buraco ou obstáculo. A crian
 - O desenho é montado por código em `coletavel.gd` (esferas, cilindros e caixas), então não precisa de modelo importado.
 - Ao entrar: som curto, some (`queue_free()`) e conta para a missão.
 - Coloque em **trilha** (5–8 seguidos), não isolados — a trilha ensina o caminho sem texto.
-- Nunca coloque comida exigindo pulo preciso.
+- Nunca coloque comida exigindo pulo preciso; a recompensa que flutua sobre uma fissura ou lava é opcional.
 
 ### Missão e níveis
 
 - Meta do nível 1: **8 comidas**; cada nível seguinte pede 1 a mais (até 15).
-- Ao completar a meta: toca o som `nivel`, o HUD mostra **NÍVEL 2!**, a barra zera e o corredor **repõe as comidas** (as que o dino está pisando só voltam na próxima reposição, para não ganhar de graça).
+- Ao completar a meta: toca o som `nivel`, o HUD mostra **NÍVEL 2!**, a barra zera e o corredor continua gerando comidas à frente — não existe mais reposição de comida.
 - O HUD (canto superior direito) mostra `NÍVEL`, `COMIDA: X / meta`, a barra do nível e o `TOTAL` acumulado.
-- Ao dar a volta no corredor, as comidas também são repostas e o nível continua de onde parou.
+- As comidas vêm em trilhas de 3 a 5 unidades; cada fissura ou rio de lava ainda ganha uma comida-recompensa flutuando no meio do salto.
 
 ---
 
@@ -240,13 +228,13 @@ O dino agora fica parado até o jogador mandar. O risco de softlock é quando a 
 3. **Nada de canto morto**: toda parede lateral deve desviar o dino para frente, nunca segurá-lo.
 4. **Obstáculos macios**: troncos baixos (pula fácil) e caixas (quebra no impacto). Nada que exija desvio milimétrico.
 5. **Velocidade 5–6 m/s**, pulo ~1,2 m de altura. Ajuste esses dois números com o seu filho jogando — é a única métrica que importa.
-6. Se o jogador segurar o avanço e o dino ficar mais de 2,5 s sem sair do lugar (`global_position.z` parado), reposicione no checkpoint. Ficar parado sem apertar nada **não** conta.
+6. Se o jogador segurar o avanço e o dino ficar mais de 3 s sem sair do lugar (`global_position.z` parado), reposicione no ponto seguro. Ficar parado sem apertar nada **não** conta.
 
 ---
 
 ## 9. Construção da fase
 
-- **GridMap** para chão, paredes e decoração modular (grama, pedra, osso). Desenhar o corredor é rápido e o alinhamento é automático.
+- **Gerador procedural** (`scripts/corredor.gd`): pedaços de 36 m com chão, paredes, decoração e desafios. O corredor reto é de propósito — curva quebra o mapeamento lateral do controle.
 - Blocos de 2 m ou 4 m; corredor de 3–4 blocos de largura.
 - Cenário sugerido para a primeira fase: floresta tropical com vulcão ao fundo (fundo em parallax/`WorldEnvironment` com fog leve).
 - Iluminação simples: `DirectionalLight3D` + `WorldEnvironment` com céu claro. Sem sombras pesadas no começo (performance e leitura visual).
@@ -278,12 +266,12 @@ Não comece por fases nem por arte. Construa **uma** cena jogável de ponta a po
 - [ ] Chão de teste (uma `BoxShape3D` grande) e paredes laterais
 - [ ] Rugido quebrando caixas por `get_overlapping_bodies()`
 - [ ] Trombada quebrando caixas por `get_slide_collision`
-- [ ] Zona de queda + checkpoint + respawn
+- [ ] Zona de queda + ponto seguro + respawn
 - [ ] Coletável com som
 - [ ] 3 sons essenciais: rugido, caixa, passo
 - [ ] Teste com a criança e ajuste velocidade/pulo **antes** de qualquer arte
 
-Depois disso: arte do dino, GridMap da fase 1, perseguição invertida (o T-Rex correndo atrás de uma fruta gigante) e tela de seleção com miniaturas grandes.
+Depois disso: arte do dino, corredor procedural da fase 1, perseguição invertida (o T-Rex correndo atrás de uma fruta gigante) e tela de seleção com miniaturas grandes.
 
 ---
 
@@ -297,7 +285,7 @@ Depois disso: arte do dino, GridMap da fase 1, perseguição invertida (o T-Rex 
 
 ## 13. Estado atual do projeto (implementado)
 
-Já existe uma fatia vertical jogável: tela inicial com nome do jogador, corredor de 150 m com 15 caixas, 24 comidas saudáveis (carne, fruta, vegetal e água), 3 checkpoints, respawn, rugido com onda de choque, som e tremor de câmera. A missão é comer bem: cada comida conta para o nível e o HUD mostra o contador e a barra. O dino **só anda quando o jogador manda** e aceita teclado, analógico e D-pad.
+Já existe uma fatia vertical jogável e **infinita**: tela inicial com nome do jogador e um corredor procedural sem fim (pedaços de 36 m gerados à frente e reciclados atrás). Cada pedaço traz árvores do GLB, samambaias, caixas, comidas e, a partir do segundo, fissuras e rios de lava que o dino precisa pular. Cair ou encostar na lava devolve ao último ponto seguro; não existe game over. A missão é comer bem: cada comida conta para o nível e o HUD mostra o contador e a barra. O dino **só anda quando o jogador manda** e aceita teclado, analógico e D-pad.
 
 ### Como rodar (Windows)
 
@@ -321,29 +309,30 @@ Com o controle plugado, o Godot já reconhece o PlayStation automaticamente: ana
 |---|---|
 | `project.godot` | Configuração, Input Map, camadas de física, autoloads `Dados` e `Sons` |
 | `scenes/tela_inicial.tscn` | Menu: fundo, título, botões COMEÇAR / SEU NOME e painel de digitação |
-| `scenes/fase_1.tscn` | Corredor, luz, céu, caixas, comidas, checkpoints e HUD (nome + missão) |
+| `scenes/fase_1.tscn` | Céu, luz, `TRex`, nó `Corredor` e HUD (nome + missão) |
 | `scenes/jogador.tscn` | T-Rex (CharacterBody3D) + modelo rigado + câmera com SpringArm3D |
 | `assets/modelos/jogador/trexChrisAnim.glb` | Dino rigado (23 ossos) com as 6 animações — é o que o jogo usa |
 | `assets/modelos/jogador/trexChris.glb` | Modelo original sem rig (fonte, não é usado em cena) |
 | `assets/modelos/props/arvores.glb` | Três modelos de árvore low-poly usados na decoração da fase |
+| `assets/shaders/lava.gdshader` | Shader animado do rio de lava (ruído correndo no sentido do rio) |
 | `tools/rig/*.py` | Pipeline Blender que gera o rig, as animações e o GLB |
 | `scenes/caixa.tscn` | Caixa quebrável (StaticBody3D, grupo `quebravel`) |
 | `scenes/coletavel.tscn` | Comida saudável (Area3D, grupo `coletavel`, tipo `tipo`) |
-| `scenes/checkpoint.tscn` | Portão que salva a posição de respawn |
 | `scripts/tela_inicial.gd` | Ações dos botões, painel de nome e troca de cena |
 | `scripts/dados.gd` | Autoload que guarda e persiste o nome em `user://dados.cfg` |
 | `scripts/hud.gd` | Nome, nível, contador de comida e barra do nível |
 | `scripts/jogador.gd` | Movimento, pulo, rugido, trombada, respawn e missão (nível) |
 | `scripts/coletavel.gd` | Desenha carne/fruta/vegetal/água e entrega a comida ao jogador |
 | `scripts/caixa.gd` | Destruição + destroços com física |
-| `scripts/fase.gd` | Decoração, anti-softlock e reposição das comidas |
+| `scripts/fase.gd` | Anti-softlock e coordenação da fase |
+| `scripts/corredor.gd` | Gerador procedural infinito: chão, paredes, fissuras, lava, árvores, caixas e comidas |
 | `scripts/sons.gd` | Autoload que toca os efeitos (2D e 3D) |
 | `audio/*.wav` | Sons gerados por síntese (sem direitos autorais) |
-| `tests/harness.tscn` | Teste automático de fumaça da fase |
+| `tests/harness.tscn` | Teste de fumaça do corredor: geração, fissura, lava, respawn, controles e limites |
 | `tests/harness_mordida.tscn` | Teste dos ataques: comando de mordida, rugido, mordida no ar e troca de animações |
 | `tests/harness_ceu.tscn` | Teste do céu HDRI: panorama, névoa fora do céu, tonemap e sombra |
 | `tests/captura.tscn` | Roda a fase e salva prints do dino em `tools/rig/out/` (QA visual) |
-| `tests/harness_missao.tscn` | Teste da missão: comidas, barra, nível e reposição |
+| `tests/harness_missao.tscn` | Teste da missão: comidas, barra e nível |
 | `tests/harness_menu.tscn` | Teste da tela inicial (botões, painel e nome) |
 | `tests/integracao_menu.tscn` | Teste COMEÇAR → fase carregada + HUD com o nome |
 
@@ -425,13 +414,51 @@ O `Sol` (DirectionalLight3D) fica com cor quente `(1, 0.9, 0.78)` e energia 1.8,
 
 O import do EXR está como textura comprimida com mipmaps ligados (`assets/ceu/ceu-01.exr.import`), que é o que evita cintilação do céu com a câmera em movimento.
 
+### Corredor infinito
+
+O caminho é gerado em **pedaços de 36 m** por `scripts/corredor.gd`. Enquanto o dino avança, novos pedaços são criados à frente e os que ficaram 58 m para trás são liberados com `queue_free()` — o nível pode rodar para sempre sem crescer em memória.
+
+```
+Corredor (Node3D, scripts/corredor.gd)
+└── Pedaco_000…  (Node3D, um por trecho de 36 m)
+    ├── Solido (StaticBody3D)        # um corpo só, com as colisões de chão e paredes
+    ├── base de rocha + grama + trilha
+    ├── Paredes (2)
+    ├── Fissura / Lava (Node3D, grupo "buraco")
+    ├── árvores (grupo "arvore") e samambaias
+    └── caixas e comidas
+```
+
+**Desafios**
+
+| Tipo | Como funciona | Largura |
+|---|---|---|
+| `Fissura` | vão no chão; cair abaixo de `ALTURA_QUEDA` (−7 m) volta ao ponto seguro | 1,8–2,6 m |
+| `Lava` | vala com shader de lava 28 cm abaixo do chão, `Area3D` de perigo e luz laranja | 2,0–2,6 m |
+| `Caixas` | 2–4 caixas seguidas para rugir, morder ou trombar | — |
+
+Com o pulo atual (força 7,5, gravidade 24, frente 6 m/s) o dino cobre ~3,7 m no ar; por isso nenhum buraco passa de 2,6 m — sobra cerca de 1,1 m de margem para quem pula no tempo certo.
+
+**Roteiro do começo** (para ensinar sem texto): pedaço 0 = caixas, 1 = primeira fissura, 2 = primeira lava, 3 = caixas; do 4 em diante o sorteio escolhe entre fissura (26%), lava (24%), caixas (26%) e trecho livre (24%), com no mínimo 20 m entre dois desafios. A dificuldade cresce com a distância percorrida até o teto de largura.
+
+**Para mexer no ritmo** (tudo em `scripts/corredor.gd`):
+
+| Quero… | Constante |
+|---|---|
+| Corrida mais longa/curta | `COMPRIMENTO` |
+| Mais/menos caminho pronto à frente | `PEDACOS_ADIANTE` |
+| Desafios mais espaçados | `ESPACO_ENTRE_OBSTACULOS` |
+| Repetir um caminho para testar | `Semente` no nó `Corredor` (0 = sorteia) |
+
+**Rio de lava**: `assets/shaders/lava.gdshader` desenha o rio sem sombreamento (`unshaded`), com dois ruídos baratos correndo no eixo do rio e veios claros. Duas faixas emissivas marcam as margens no chão, e uma `OmniLight3D` acende a vala e as paredes próximas.
+
 ### Árvores do cenário
 
-A decoração lateral da fase usa os três modelos low-poly de `assets/modelos/props/arvores.glb` (`Tree1`, `Tree2` e `Tree3`, 742 triângulos no total). `scripts/fase.gd` instancia o GLB uma vez, mede cada árvore e duplica o molde ao longo do corredor, alternando modelo, giro e altura.
+A decoração lateral da fase usa os três modelos low-poly de `assets/modelos/props/arvores.glb` (`Tree1`, `Tree2` e `Tree3`, 742 triângulos no total). `scripts/corredor.gd` instancia o GLB uma vez, mede cada árvore e duplica o molde em cada pedaço do corredor, alternando modelo, giro e altura.
 
 - O GLB vem do Sketchfab com o eixo **Z para cima**, o pivô fora do pé do tronco e alturas diferentes (~16 m e ~20 m). O script leva o pé do tronco para a origem e normaliza todas para `ALTURA_ARVORE` (9 m), com ±12% de variação.
 - As árvores ficam **atrás das paredes**, em `x = ±6,5…9 m`, a cada 7–11 m. A copa passa por cima da parede e forma o teto de floresta do corredor.
-- Para mudar o porte da floresta, mexa em `ALTURA_ARVORE` e `VARIACAO_ALTURA` no topo de `scripts/fase.gd`; a distância das paredes e o espaçamento ficam em `_gerar_decoracao()`.
+- Para mudar o porte da floresta, mexa em `ALTURA_ARVORE` e `VARIACAO_ALTURA` no topo de `scripts/corredor.gd`; a distância das paredes e o espaçamento ficam em `_decorar()`.
 - Não há colisão: as árvores ficam fora do corredor, então não atrapalham o dino. As samambaias do chão continuam sendo esferas geradas por código.
 
 ### Testes automáticos
@@ -445,19 +472,22 @@ godot --headless --path . res://tests/harness_mordida.tscn
 godot --headless --path . res://tests/harness_ceu.tscn
 ```
 
-O primeiro valida 26 pontos da fase: câmera, dino parado sem input, avanço/recuo manuais, mapeamento de joystick (analógico X/Y, D-pad e botões), pulo, lateral, rugido quebrando caixa, coleta, checkpoints, respawn e limites do corredor. O segundo valida a missão: comidas alternando em 4 tipos, HUD (nível, contador, barra, total), subida de nível e reposição das comidas. O terceiro valida o menu e a persistência do nome. O quarto confirma que **COMEÇAR** troca de cena e que o nome aparece no HUD. O quinto valida os ataques e as animações: os 6 clipes importados, loops corretos, mordida mapeada em teclado e controle, mordida quebrando a caixa da frente, rugido sem virar mordida, mordida no ar não interrompendo o pulo, e a troca Idle ↔ Run pela velocidade. O sexto valida o céu: fundo em Sky, material PanoramaSkyMaterial apontando para `ceu-01.exr`, névoa fora do céu (`fog_sky_affect`), tonemap AgX e sol com sombra. Todos saem com código 0 quando passam.
+O primeiro valida o corredor inteiro: câmera, dino parado sem input, avanço/recuo manuais, mapeamento de joystick (analógico X/Y, D-pad e botões), pulo, lateral, árvores do GLB, fissura e lava geradas, rugido quebrando caixa, coleta, queda na fissura e na lava com volta ao ponto seguro, geração 600 m à frente com pedaços antigos apagados e limites laterais. O segundo valida a missão: comidas no corredor nos 4 tipos, HUD (nível, contador, barra, total) e subida de nível. O terceiro valida o menu e a persistência do nome. O quarto confirma que **COMEÇAR** troca de cena e que o nome aparece no HUD. O quinto valida os ataques e as animações: os 6 clipes importados, loops corretos, mordida mapeada em teclado e controle, mordida quebrando a caixa da frente, rugido sem virar mordida, mordida no ar não interrompendo o pulo, e a troca Idle ↔ Run pela velocidade. O sexto valida o céu: fundo em Sky, material PanoramaSkyMaterial apontando para `ceu-01.exr`, névoa fora do céu (`fog_sky_affect`), tonemap AgX e sol com sombra. Todos saem com código 0 quando passam.
 
 ### Ajustes rápidos (no inspetor, sem código)
 
 - `TRex` → `Velocidade Frente` (6.0), `Velocidade Tras` (3.5) e `Velocidade Lateral` (7.0): sensação de velocidade.
 - `TRex` → `Forca Pulo` (7.5): altura do pulo (gravidade do projeto = 24).
 - `TRex/CameraRig` → `Position.y` (3.1) e `SpringArm3D` → `Spring Length` (6.0) / `Rotation X` (-17): enquadramento.
-- `Fase1/Objetos`: mova, duplique ou apague caixas/itens/checkpoints direto no editor.
+- `Fase1/Corredor` → `Semente`: 0 sorteia um caminho novo a cada partida; um número fixo repete o mesmo caminho.
+- `scripts/corredor.gd` → `COMPRIMENTO`, `PEDACOS_ADIANTE` e `ESPACO_ENTRE_OBSTACULOS`: tamanho dos pedaços, quanto caminho fica pronto à frente e respiro entre desafios.
 
 ### Observações técnicas (descobertas nos testes)
 
 - `Area3D` com `monitorable = false` deixa de reportar `get_overlapping_bodies()` no Godot 4.7 — por isso a RugidoArea não usa essa opção.
 - O rugido consulta `get_overlapping_bodies()` em vez de depender de `area_entered`, então funciona com caixas que já estavam dentro do raio.
+- A lava fica só 28 cm abaixo do chão de propósito: mais funda, a borda de perto esconde o rio na câmera de trás. A `Area3D` de perigo fica abaixo dessa superfície para não acusar o dino parado na beira.
+- Cada pedaço tem **um** `StaticBody3D` com vários `CollisionShape3D` (chão + paredes). Os pedaços que ficam 58 m para trás são liberados inteiros, junto com suas caixas, comidas e árvores.
 - Ao encerrar o jogo no meio de um efeito sonoro, o Godot pode imprimir um aviso de áudio "ainda em uso". É do desligamento do AudioServer, não afeta o jogo.
 
 ### Próximos passos sugeridos
@@ -465,7 +495,7 @@ O primeiro valida 26 pontos da fase: câmera, dino parado sem input, avanço/rec
 1. Animação de "comer" ao pegar a comida (hoje a comida some sem reação do dino).
 2. Rigar e animar o `spinoBob.glb` (inimigo) reaproveitando o mesmo pipeline de `tools/rig/`.
 3. Fase 2 com a perseguição invertida (T-Rex atrás de uma fruta gigante).
-4. Trilha sonora em loop e um "uau" ao pegar checkpoint.
+4. Trilha sonora em loop e um "uau" ao passar de nível.
 5. Exportar `.exe` com ícone do T-Rex.
 
 ### Pendências conhecidas do rig
