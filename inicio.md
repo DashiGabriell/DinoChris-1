@@ -307,7 +307,7 @@ Com o controle plugado, o Godot já reconhece o PlayStation automaticamente: ana
 
 | Caminho | O que é |
 |---|---|
-| `project.godot` | Configuração, Input Map, camadas de física, autoloads `Dados` e `Sons` |
+| `project.godot` | Configuração, Input Map, camadas de física, tema global de fontes, autoloads `Dados` e `Sons` |
 | `scenes/tela_inicial.tscn` | Menu: fundo, título, botões COMEÇAR / SEU NOME e painel de digitação |
 | `scenes/fase_1.tscn` | Céu, luz, `TRex`, nó `Corredor` e HUD (nome + missão) |
 | `scenes/jogador.tscn` | T-Rex (CharacterBody3D) + modelo rigado + câmera com SpringArm3D |
@@ -315,6 +315,8 @@ Com o controle plugado, o Godot já reconhece o PlayStation automaticamente: ana
 | `assets/modelos/jogador/trexChris.glb` | Modelo original sem rig (fonte, não é usado em cena) |
 | `assets/modelos/props/arvores.glb` | Três modelos de árvore low-poly usados na decoração da fase |
 | `assets/shaders/lava.gdshader` | Shader animado do rio de lava (ruído correndo no sentido do rio) |
+| `assets/fontes/tema_jogo.tres` | Tema global: Nunito SemiBold no HUD/texto e Lilita One nos títulos e botões |
+| `assets/fontes/*.ttf` + `OFL-*.txt` | Fontes OFL: Lilita One (títulos) e Nunito SemiBold (texto) |
 | `tools/rig/*.py` | Pipeline Blender que gera o rig, as animações e o GLB |
 | `scenes/caixa.tscn` | Caixa quebrável (StaticBody3D, grupo `quebravel`) |
 | `scenes/coletavel.tscn` | Comida saudável (Area3D, grupo `coletavel`, tipo `tipo`) |

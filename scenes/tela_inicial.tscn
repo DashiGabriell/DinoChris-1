@@ -169,6 +169,7 @@ theme_override_constants/separation = 26
 alignment = 1
 
 [node name="Titulo" type="Label" parent="Centro/Conteudo"]
+theme_type_variation = "Titulo"
 theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
 theme_override_colors/font_outline_color = Color(0.12, 0.05, 0.02, 1)
 theme_override_constants/outline_size = 18
@@ -178,6 +179,7 @@ CORAJOSO"
 horizontal_alignment = 1
 
 [node name="BotaoComecar" type="Button" parent="Centro/Conteudo"]
+theme_type_variation = "Botao"
 custom_minimum_size = Vector2(0, 96)
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.18, 0.08, 1)
@@ -190,6 +192,7 @@ theme_override_styles/pressed = SubResource("SB_verde_press")
 text = "COMEÇAR"
 
 [node name="BotaoNome" type="Button" parent="Centro/Conteudo"]
+theme_type_variation = "Botao"
 custom_minimum_size = Vector2(0, 96)
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.18, 0.08, 1)
@@ -238,6 +241,7 @@ theme_override_constants/margin_bottom = 32
 theme_override_constants/separation = 22
 
 [node name="Instrucao" type="Label" parent="PainelNome/Caixa/Margem/ConteudoNome"]
+theme_type_variation = "Titulo"
 theme_override_colors/font_color = Color(1, 0.92, 0.6, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
@@ -261,6 +265,7 @@ theme_override_constants/separation = 20
 alignment = 1
 
 [node name="BotaoSalvar" type="Button" parent="PainelNome/Caixa/Margem/ConteudoNome/BotoesNome"]
+theme_type_variation = "Botao"
 custom_minimum_size = Vector2(240, 78)
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0.05, 0.18, 0.08, 1)
@@ -273,6 +278,7 @@ theme_override_styles/pressed = SubResource("SB_verde_press")
 text = "SALVAR"
 
 [node name="BotaoCancelar" type="Button" parent="PainelNome/Caixa/Margem/ConteudoNome/BotoesNome"]
+theme_type_variation = "Botao"
 custom_minimum_size = Vector2(240, 78)
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)

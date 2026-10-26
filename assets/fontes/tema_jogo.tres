@@ -1,0 +1,12 @@
+[gd_resource type="Theme" load_steps=3 format=3]
+
+[ext_resource type="FontFile" path="res://assets/fontes/Nunito-SemiBold.ttf" id="1_nunito"]
+[ext_resource type="FontFile" path="res://assets/fontes/LilitaOne-Regular.ttf" id="2_lilita"]
+
+[resource]
+default_font = ExtResource("1_nunito")
+default_font_size = 20
+Titulo/base_type = &"Label"
+Titulo/fonts/font = ExtResource("2_lilita")
+Botao/base_type = &"Button"
+Botao/fonts/font = ExtResource("2_lilita")

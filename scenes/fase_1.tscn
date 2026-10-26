@@ -80,7 +80,7 @@ script = ExtResource("4_hud")
 [node name="Nome" type="Label" parent="HUD"]
 offset_left = 28.0
 offset_top = 18.0
-offset_right = 448.0
+offset_right = 668.0
 offset_bottom = 68.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -112,6 +112,7 @@ theme_override_constants/separation = 6
 
 [node name="Nivel" type="Label" parent="HUD/Missao/Margem/Conteudo"]
 layout_mode = 2
+theme_type_variation = "Titulo"
 theme_override_colors/font_color = Color(0.55, 0.95, 0.45, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
@@ -144,6 +145,7 @@ text = "TOTAL: 0"
 
 [node name="Aviso" type="Label" parent="HUD"]
 anchors_preset = 8
+theme_type_variation = "Titulo"
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
