@@ -9,10 +9,14 @@ const ICONES_COMIDA := {
 	3: preload("res://assets/ui/icone_agua.svg"),
 }
 const ICONE_SEMENTE := preload("res://assets/ui/icone_semente.svg")
+const ICONE_CORACAO := preload("res://assets/ui/icone_coracao.svg")
+const ICONE_CORACAO_VAZIO := preload("res://assets/ui/icone_coracao_vazio.svg")
+const TOTAL_CORACOES: int = 7
 
 @onready var placa_nome: PanelContainer = $PlacaNome
 @onready var icone_nome: TextureRect = $IconeNome
 @onready var nome: Label = $Nome
+@onready var coracoes: HBoxContainer = $Coracoes
 @onready var missao: PanelContainer = $Missao
 @onready var icone_missao: TextureRect = $Missao/Margem/Conteudo/IconeMissao
 @onready var nivel_label: Label = $Missao/Margem/Conteudo/Nivel
@@ -28,8 +32,10 @@ var _tween_aviso: Tween = null
 var _tween_dano: Tween = null
 var _vinheta: TextureRect = null
 var _pips: Array[TextureRect] = []
+var _coracoes: Array[TextureRect] = []
 var _no_nivel_atual: int = 0
 var _meta_atual: int = 0
+var _vidas_atuais: int = 5
 
 
 func _ready() -> void:
@@ -37,6 +43,8 @@ func _ready() -> void:
 	aviso.modulate.a = 0.0
 	aviso_fundo.modulate.a = 0.0
 	_criar_vinheta()
+	_criar_coracoes()
+	_atualizar_vidas(5, TOTAL_CORACOES)
 	_atualizar_pips(8, 0)
 	_aplicar_area_segura()
 	get_viewport().size_changed.connect(_aplicar_area_segura)
@@ -47,6 +55,8 @@ func _ready() -> void:
 
 	_jogador.connect("comida_coletada", _ao_coletar)
 	_jogador.connect("subiu_nivel", _ao_subir_nivel)
+	_jogador.connect("vidas_alteradas", _ao_vidas_alteradas)
+	_atualizar_vidas(int(_jogador.get("vidas")), int(_jogador.call("vidas_maximas")))
 	if _jogador.has_signal("comida_tipo_coletada"):
 		_jogador.connect("comida_tipo_coletada", _ao_tipo_comida)
 	if _jogador.has_signal("levou_dano"):
@@ -83,6 +93,58 @@ func _criar_vinheta() -> void:
 	_vinheta.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
+func _criar_coracoes() -> void:
+	for coracao_antigo in _coracoes:
+		coracao_antigo.queue_free()
+	_coracoes.clear()
+
+	for i in TOTAL_CORACOES:
+		var coracao := TextureRect.new()
+		coracao.texture = ICONE_CORACAO_VAZIO
+		coracao.custom_minimum_size = Vector2(26, 26)
+		coracao.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		coracao.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		coracao.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		coracao.set_meta("cheio", false)
+		coracoes.add_child(coracao)
+		_coracoes.append(coracao)
+
+
+func _ao_vidas_alteradas(atuais: int, maximas: int) -> void:
+	_atualizar_vidas(atuais, maximas)
+
+
+func _atualizar_vidas(atuais: int, maximas: int) -> void:
+	var total := maxi(maximas, TOTAL_CORACOES)
+	if _coracoes.size() != total:
+		_criar_coracoes()
+		if _coracoes.size() != total:
+			return
+
+	var anteriores := _vidas_atuais
+	_vidas_atuais = clampi(atuais, 0, total)
+	for i in _coracoes.size():
+		var cheio := i < _vidas_atuais
+		_coracoes[i].texture = ICONE_CORACAO if cheio else ICONE_CORACAO_VAZIO
+		_coracoes[i].set_meta("cheio", cheio)
+
+	if _vidas_atuais < anteriores:
+		_pulsar_coracao(mini(_vidas_atuais, total - 1), false)
+	elif _vidas_atuais > anteriores:
+		_pulsar_coracao(maxi(_vidas_atuais - 1, 0), true)
+
+
+func _pulsar_coracao(indice: int, ganho: bool) -> void:
+	if Dados.modo_calmo or indice < 0 or indice >= _coracoes.size():
+		return
+	var coracao := _coracoes[indice]
+	coracao.pivot_offset = coracao.size * 0.5
+	coracao.scale = Vector2(1.45, 1.45) if ganho else Vector2(0.7, 0.7)
+	var tween := create_tween()
+	tween.tween_property(coracao, "scale", Vector2.ONE, 0.28) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
 func _aplicar_area_segura() -> void:
 	var janela := Vector2(DisplayServer.window_get_size())
 	if janela.x <= 0.0 or janela.y <= 0.0:
@@ -110,6 +172,11 @@ func _aplicar_area_segura() -> void:
 	nome.offset_top = float(margem_topo + 7)
 	nome.offset_right = float(margem_esq + largura_placa - 14)
 	nome.offset_bottom = float(margem_topo + 57)
+
+	coracoes.offset_left = float(margem_esq)
+	coracoes.offset_top = float(margem_topo + 76)
+	coracoes.offset_right = float(margem_esq + 230)
+	coracoes.offset_bottom = float(margem_topo + 110)
 
 	var largura_missao := 384
 	missao.offset_left = float(-margem_dir - largura_missao)

@@ -14,10 +14,15 @@ signal comida_coletada(no_nivel: int, meta: int, nivel: int, total: int)
 signal comida_tipo_coletada(tipo: int)
 signal subiu_nivel(nivel: int)
 signal levou_dano
+signal vidas_alteradas(atuais: int, maximas: int)
+signal morreu
 
 ## Quantas comidas saudáveis o dino precisa por nível (sobe 1 a cada nível).
 const META_BASE: int = 8
 const META_MAXIMA: int = 15
+const VIDAS_INICIAIS: int = 5
+const VIDAS_MAXIMAS: int = 7
+const TEMPO_INVULNERAVEL: float = 1.5
 
 ## Velocidade usada como referência para a animação de corrida (m/s).
 ## Fica abaixo da velocidade real de propósito: pernas mais rápidas disfarçam
@@ -57,6 +62,10 @@ var _levando_dano: bool = false
 var _modelo_rotacao_base := Vector3.ZERO
 var _modelo_escala_base := Vector3.ONE
 var _tween_dano: Tween = null
+var vidas: int = VIDAS_INICIAIS
+var _invulneravel: float = 0.0
+var _tempo_piscar: float = 0.0
+var _morto: bool = false
 
 
 func _ready() -> void:
@@ -67,6 +76,18 @@ func _ready() -> void:
 		_modelo_rotacao_base = modelo.rotation_degrees
 		_modelo_escala_base = modelo.scale
 	_preparar_animacoes()
+
+
+func _process(delta: float) -> void:
+	if _invulneravel <= 0.0:
+		if modelo != null and not modelo.visible:
+			modelo.visible = true
+		return
+
+	_invulneravel = maxf(_invulneravel - delta, 0.0)
+	_tempo_piscar += delta
+	if modelo != null:
+		modelo.visible = _invulneravel <= 0.0 or fmod(_tempo_piscar, 0.16) < 0.08
 
 
 # ---------------------------------------------------------------- animação
@@ -150,6 +171,9 @@ func _atualizar_animacao(delta: float) -> void:
 
 # ---------------------------------------------------------------- laço
 func _physics_process(delta: float) -> void:
+	if _morto:
+		return
+
 	if _atordoado > 0.0:
 		_processar_atordoado(delta)
 		return
@@ -279,10 +303,66 @@ func _onda_de_choque() -> void:
 	tween.chain().tween_callback(onda.queue_free)
 
 
-# ---------------------------------------------------------------- dano
+# ---------------------------------------------------------------- vidas e dano
+func esta_vivo() -> bool:
+	return vidas > 0 and not _morto
+
+
+func vidas_atuais() -> int:
+	return vidas
+
+
+func vidas_maximas() -> int:
+	return VIDAS_MAXIMAS
+
+
+func pode_ganhar_vida() -> bool:
+	return esta_vivo() and vidas < VIDAS_MAXIMAS
+
+
+func ganhar_vida() -> bool:
+	if _morto or vidas >= VIDAS_MAXIMAS:
+		return false
+	vidas += 1
+	vidas_alteradas.emit(vidas, VIDAS_MAXIMAS)
+	return true
+
+
+func receber_dano(_motivo: String = "") -> bool:
+	if _morto or _invulneravel > 0.0:
+		return false
+
+	vidas = maxi(vidas - 1, 0)
+	_invulneravel = TEMPO_INVULNERAVEL
+	_tempo_piscar = 0.0
+	vidas_alteradas.emit(vidas, VIDAS_MAXIMAS)
+	levou_dano.emit()
+
+	if vidas <= 0:
+		_morto = true
+		velocity = Vector3.ZERO
+		_ao_morrer()
+	return true
+
+
+func _ao_morrer() -> void:
+	_atordoado = 0.0
+	_levando_dano = false
+	_rugindo = false
+	_acao = "dano"
+	if anim != null:
+		anim.speed_scale = 1.0
+		if anim.has_animation("Jump"):
+			anim.play("Jump", 0.06)
+	morreu.emit()
+
+
 func levar_tronco() -> void:
-	if _levando_dano:
+	if _morto or not receber_dano("tronco"):
 		return
+	if _morto:
+		return
+
 	_levando_dano = true
 	_atordoado = 0.6
 	_rugindo = false
@@ -300,7 +380,6 @@ func levar_tronco() -> void:
 	Sons.tocar("pulo", -2.0, 0.55)
 	camera_rig.call("tremer", 0.3, 0.4)
 	_tumbrar()
-	levou_dano.emit()
 
 
 func _processar_atordoado(delta: float) -> void:
@@ -388,10 +467,36 @@ func voltar_ao_checkpoint() -> void:
 	_movendo = false
 	_atordoado = 0.0
 	_levando_dano = false
+	_rugindo = false
+	_invulneravel = 0.0
+	_tempo_piscar = 0.0
 	if _tween_dano != null and _tween_dano.is_valid():
 		_tween_dano.kill()
 	_restaurar_modelo()
+	if modelo != null:
+		modelo.visible = true
 	if anim != null:
 		anim.speed_scale = 1.0
 	Sons.tocar("pulo", -4.0, 0.7)
 	camera_rig.call("tremer", 0.12, 0.25)
+
+
+func reposicionar_apos_obstaculo(posicao: Vector3) -> void:
+	global_position = posicao
+	velocity = Vector3.ZERO
+	_acao = ""
+	_movendo = false
+	_atordoado = 0.0
+	_levando_dano = false
+	_rugindo = false
+	if _tween_dano != null and _tween_dano.is_valid():
+		_tween_dano.kill()
+	_restaurar_modelo()
+	if modelo != null:
+		modelo.visible = true
+	if anim != null:
+		anim.speed_scale = 1.0
+		if anim.has_animation("Idle"):
+			anim.play("Idle", 0.1)
+	_tempo_piscar = 0.0
+	camera_rig.call("tremer", 0.16, 0.25)

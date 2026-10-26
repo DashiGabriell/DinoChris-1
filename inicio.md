@@ -1,7 +1,7 @@
 # O Super T-Rex Corajoso — documento de projeto (Godot 4)
 
 Game de corredor 3D estilo Crash Bandicoot para uma criança de 4 anos que ama T-Rex.
-Foco: **sensação de poder** (correr, rugir, quebrar) sem dificuldade, sem game over e sem punição.
+Foco: **sensação de poder** (correr, rugir, quebrar) com vidas generosas e um game over fofo, sem punição severa.
 
 ---
 
@@ -11,12 +11,13 @@ Foco: **sensação de poder** (correr, rugir, quebrar) sem dificuldade, sem game
 - Corredor linear 3D. Nada de mundo aberto — criança de 4 anos se perde e desiste.
 - Poucos botões: analógico (direção) + pular + rugir.
 - Feedback exagerado: som alto, partículas, tremor de tela, caixas voando.
-- Erro nunca custa nada: cair ou bater = cambalhota engraçada e volta na hora.
+- Erro custa no máximo **1 coração**: cambalhota engraçada, invulnerabilidade curta e volta logo.
+- Vidas generosas: 5 iniciais, até 7, com corações saindo das caixas.
 
 **Não vale:**
-- Game over, vidas, cronômetro, contador de mortes.
+- Game over punitivo, vidas escassas, cronômetro ou contador de mortes.
 - Pulos com timing preciso, plataformas estreitas, câmera que gira sozinha.
-- Texto na tela. Ícone e áudio bastam.
+- Texto longo. Ícone, áudio e frases curtas bastam.
 
 ---
 
@@ -179,26 +180,25 @@ Dica: para pedaços voando de verdade, instancie um `RigidBody3D` pequeno (3–5
 
 ---
 
-## 6. Queda e respawn (o "sem game over")
+## 6. Queda, dano e respawn
 
-Nada de morte e nada de checkpoint fixo: como o corredor é infinito, o próprio gerador guarda onde o dino pisou em chão firme.
+O dino começa com **5 corações**, pode chegar a **7** e só perde 1 por obstáculo. Não existe checkpoint fixo: como o corredor é infinito, o próprio gerador guarda onde o dino pisou em chão firme.
 
-- **Ponto seguro**: a cada quadro em que o dino está no chão (e não em cima de uma caixa) e a mais de 2,4 m de qualquer fissura/lava, `scripts/corredor.gd` grava a posição em `TRex.checkpoint`.
-- **Fissura**: o chão tem um vão; se o dino cair abaixo de `ALTURA_QUEDA` (−7 m), volta ao ponto seguro com um anel de poeira, som e tremor de câmera.
-- **Lava**: o rio tem uma `Area3D` (camada 2) logo abaixo da superfície; encostar nela dispara o mesmo resgate, com anel laranja e som grave.
-- **Anti-softlock**: se o jogador segurar o avanço e o dino ficar 3 s sem mudar de `z`, `scripts/fase.gd` também chama `voltar_ao_checkpoint()`.
+- **Ponto seguro**: a cada quadro em que o dino está no chão (e não em cima de uma caixa) e a mais de 2,4 m de qualquer fissura/lava, `scripts/corredor.gd` grava a posição em `TRex.checkpoint`. Ele continua sendo usado pelo anti-softlock.
+- **Fissura**: se o dino cair abaixo de `ALTURA_QUEDA` (−7 m), perde **1 coração** e reaparece **depois** da fissura, em chão firme, ~3 m após a borda final e virado para frente.
+- **Lava**: encostar na `Area3D` de perigo tira **1 coração** e faz o mesmo reposicionamento após o rio, com anel laranja e som grave.
+- **Tronco**: a trombada tira **1 coração** e mantém o empurrão para trás; não teleporta.
+- **Invulnerabilidade**: após qualquer dano, o dino pisca por **1,5 s** e não perde outro coração nesse intervalo.
+- **Anti-softlock**: se o jogador segurar o avanço e o dino ficar 3 s sem mudar de `z`, `scripts/fase.gd` chama `voltar_ao_checkpoint()` **sem tirar vida**.
+- **Game over**: ao chegar a **0 vidas**, a fase pausa e mostra **QUASE!** com **TENTAR NOVAMENTE** (reinicia a fase com 5) e **SAIR** (volta para a tela inicial). O game over só aparece nesse caso; não há cronômetro nem contador de mortes.
 
-```gdscript
-func voltar_ao_checkpoint() -> void:
-	global_position = checkpoint
-	velocity = Vector3.ZERO
-	_acao = ""
-	if anim != null:
-		anim.speed_scale = 1.0
-	camera_rig.call("tremer", 0.12, 0.25)
-```
+### Corações nas caixas
 
-Regra: a criança nunca repete mais do que o trecho entre o último chão firme e o obstáculo (uns 2,4 m), e não os ~15 s do corredor finito antigo.
+- Ao quebrar uma caixa, pode sair um coração que pula para fora e brilha.
+- Chance de **40%** quando o dino tem menos de 7 vidas; com **1 ou 2 vidas**, a chance é **100%**.
+- Com **7 vidas**, nenhuma caixa solta coração.
+- O coração cura 1 vida, não conta como comida e some sozinho após ~12 s se não for pego.
+- As vidas são só da sessão: nova tentativa, retorno ao menu ou novo app recomeça com 5. Elas **não** são salvas em `user://dados.cfg`.
 
 ---
 
@@ -285,7 +285,7 @@ Depois disso: arte do dino, corredor procedural da fase 1, perseguição inverti
 
 ## 13. Estado atual do projeto (implementado)
 
-Já existe uma fatia vertical jogável e **infinita**: tela inicial com nome do jogador e um corredor procedural sem fim (pedaços de 36 m gerados à frente e reciclados atrás). Cada pedaço traz árvores do GLB, samambaias, caixas, comidas e, a partir do segundo, fissuras e rios de lava que o dino precisa pular. Cair ou encostar na lava devolve ao último ponto seguro; não existe game over. A missão é comer bem: cada comida conta para o nível e o HUD mostra o contador e a barra. O dino **só anda quando o jogador manda** e aceita teclado, analógico e D-pad.
+Já existe uma fatia vertical jogável e **infinita**: tela inicial com nome do jogador e um corredor procedural sem fim (pedaços de 36 m gerados à frente e reciclados atrás). Cada pedaço traz árvores do GLB, samambaias, caixas, comidas e, a partir do segundo, fissuras e rios de lava que o dino precisa pular. O dino começa com **5 corações** (máximo 7); cair, encostar na lava ou trombar num tronco tira 1 coração e devolve o dino logo depois do obstáculo, com invulnerabilidade curta. Caixas podem soltar corações de cura. Ao chegar a 0, aparece um game over fofo com **TENTAR NOVAMENTE** e **SAIR**. A missão é comer bem: cada comida conta para o nível e o HUD mostra o contador e a barra. O dino **só anda quando o jogador manda** e aceita teclado, analógico e D-pad.
 
 ### Como rodar (Windows)
 
@@ -309,7 +309,7 @@ Com o controle plugado, o Godot já reconhece o PlayStation automaticamente: ana
 |---|---|
 | `project.godot` | Configuração, Input Map, camadas de física, tema global de fontes, autoloads `Dados` e `Sons` |
 | `scenes/tela_inicial.tscn` | Menu: fundo, título, botões COMEÇAR / SEU NOME e painel de digitação |
-| `scenes/fase_1.tscn` | Céu, luz, `TRex`, nó `Corredor` e HUD (nome + missão) |
+| `scenes/fase_1.tscn` | Céu, luz, `TRex`, `Corredor`, HUD (nome + corações + missão) e game over |
 | `scenes/jogador.tscn` | T-Rex (CharacterBody3D) + modelo rigado + câmera com SpringArm3D |
 | `assets/modelos/jogador/trexChrisAnim.glb` | Dino rigado (23 ossos) com as 6 animações — é o que o jogo usa |
 | `assets/modelos/jogador/trexChris.glb` | Modelo original sem rig (fonte, não é usado em cena) |
@@ -319,22 +319,28 @@ Com o controle plugado, o Godot já reconhece o PlayStation automaticamente: ana
 | `assets/fontes/*.ttf` + `OFL-*.txt` | Fontes OFL: Lilita One (títulos) e Nunito SemiBold (texto) |
 | `tools/rig/*.py` | Pipeline Blender que gera o rig, as animações e o GLB |
 | `scenes/caixa.tscn` | Caixa quebrável (StaticBody3D, grupo `quebravel`) |
+| `scenes/coracao.tscn` | Coração de cura (Area3D, grupo `coracao`) |
 | `scenes/coletavel.tscn` | Comida saudável (Area3D, grupo `coletavel`, tipo `tipo`) |
 | `scripts/tela_inicial.gd` | Ações dos botões, painel de nome e troca de cena |
 | `scripts/dados.gd` | Autoload que guarda e persiste o nome em `user://dados.cfg` |
-| `scripts/hud.gd` | Nome, nível, contador de comida e barra do nível |
-| `scripts/jogador.gd` | Movimento, pulo, rugido, trombada, respawn e missão (nível) |
+| `scripts/hud.gd` | Nome, 7 corações, nível, contador de comida e barra do nível |
+| `scripts/jogador.gd` | Movimento, pulo, rugido, trombada, vidas, dano, respawn e missão (nível) |
 | `scripts/coletavel.gd` | Desenha carne/fruta/vegetal/água e entrega a comida ao jogador |
-| `scripts/caixa.gd` | Destruição + destroços com física |
-| `scripts/fase.gd` | Anti-softlock e coordenação da fase |
+| `scripts/caixa.gd` | Destruição + destroços com física + chance de soltar coração |
+| `scripts/coracao.gd` | Coleta do coração, cura e tempo de vida |
+| `scripts/game_over.gd` | Overlay de fim de vidas, pausa e sinais dos botões |
+| `scripts/fase.gd` | Anti-softlock, game over e troca de cena |
 | `scripts/corredor.gd` | Gerador procedural infinito: chão, paredes, fissuras, lava, árvores, caixas e comidas |
 | `scripts/sons.gd` | Autoload que toca os efeitos (2D e 3D) |
+| `assets/ui/icone_coracao*.svg` | Coração cheio e vazio do HUD |
 | `audio/*.wav` | Sons gerados por síntese (sem direitos autorais) |
 | `tests/harness.tscn` | Teste de fumaça do corredor: geração, fissura, lava, respawn, controles e limites |
 | `tests/harness_mordida.tscn` | Teste dos ataques: comando de mordida, rugido, mordida no ar e troca de animações |
 | `tests/harness_ceu.tscn` | Teste do céu HDRI: panorama, névoa fora do céu, tonemap e sombra |
 | `tests/captura.tscn` | Roda a fase e salva prints do dino em `tools/rig/out/` (QA visual) |
 | `tests/harness_missao.tscn` | Teste da missão: comidas, barra e nível |
+| `tests/harness_tronco.tscn` | Teste do tronco e do empurrão |
+| `tests/harness_vidas.tscn` | Teste de vidas, corações, dano, respawn e game over |
 | `tests/harness_menu.tscn` | Teste da tela inicial (botões, painel e nome) |
 | `tests/integracao_menu.tscn` | Teste COMEÇAR → fase carregada + HUD com o nome |
 
@@ -472,9 +478,11 @@ godot --headless --path . res://tests/harness_menu.tscn
 godot --headless --path . res://tests/integracao_menu.tscn
 godot --headless --path . res://tests/harness_mordida.tscn
 godot --headless --path . res://tests/harness_ceu.tscn
+godot --headless --path . res://tests/harness_tronco.tscn
+godot --headless --path . res://tests/harness_vidas.tscn
 ```
 
-O primeiro valida o corredor inteiro: câmera, dino parado sem input, avanço/recuo manuais, mapeamento de joystick (analógico X/Y, D-pad e botões), pulo, lateral, árvores do GLB, fissura e lava geradas, rugido quebrando caixa, coleta, queda na fissura e na lava com volta ao ponto seguro, geração 600 m à frente com pedaços antigos apagados e limites laterais. O segundo valida a missão: comidas no corredor nos 4 tipos, HUD (nível, contador, barra, total) e subida de nível. O terceiro valida o menu e a persistência do nome. O quarto confirma que **COMEÇAR** troca de cena e que o nome aparece no HUD. O quinto valida os ataques e as animações: os 6 clipes importados, loops corretos, mordida mapeada em teclado e controle, mordida quebrando a caixa da frente, rugido sem virar mordida, mordida no ar não interrompendo o pulo, e a troca Idle ↔ Run pela velocidade. O sexto valida o céu: fundo em Sky, material PanoramaSkyMaterial apontando para `ceu-01.exr`, névoa fora do céu (`fog_sky_affect`), tonemap AgX e sol com sombra. Todos saem com código 0 quando passam.
+O primeiro valida o corredor inteiro: câmera, dino parado sem input, avanço/recuo manuais, mapeamento de joystick (analógico X/Y, D-pad e botões), pulo, lateral, árvores do GLB, fissura e lava geradas, rugido quebrando caixa, coleta, queda na fissura e na lava com volta ao ponto seguro, geração 600 m à frente com pedaços antigos apagados e limites laterais. O segundo valida a missão: comidas no corredor nos 4 tipos, HUD (nível, contador, barra, total) e subida de nível. O terceiro valida o menu e a persistência do nome. O quarto confirma que **COMEÇAR** troca de cena e que o nome aparece no HUD. O quinto valida os ataques e as animações: os 6 clipes importados, loops corretos, mordida mapeada em teclado e controle, mordida quebrando a caixa da frente, rugido sem virar mordida, mordida no ar não interrompendo o pulo, e a troca Idle ↔ Run pela velocidade. O sexto valida o céu: fundo em Sky, material PanoramaSkyMaterial apontando para `ceu-01.exr`, névoa fora do céu (`fog_sky_affect`), tonemap AgX e sol com sombra. O sétimo valida o tronco: dano, empurrão e ausência de dano duplicado durante a invulnerabilidade. O oitavo valida as vidas: HUD com 7 espaços, 5 iniciais, coração de caixa, teto 7, dano de tronco/buraco/lava, respawn depois do obstáculo e game over com os botões. Todos saem com código 0 quando passam.
 
 ### Ajustes rápidos (no inspetor, sem código)
 
@@ -490,6 +498,8 @@ O primeiro valida o corredor inteiro: câmera, dino parado sem input, avanço/re
 - O rugido consulta `get_overlapping_bodies()` em vez de depender de `area_entered`, então funciona com caixas que já estavam dentro do raio.
 - A lava fica só 28 cm abaixo do chão de propósito: mais funda, a borda de perto esconde o rio na câmera de trás. A `Area3D` de perigo fica abaixo dessa superfície para não acusar o dino parado na beira.
 - Cada pedaço tem **um** `StaticBody3D` com vários `CollisionShape3D` (chão + paredes). Os pedaços que ficam 58 m para trás são liberados inteiros, junto com suas caixas, comidas e árvores.
+- Não dá para mudar `Area3D.monitoring` dentro de `body_entered`; o coração usa `set_deferred("monitoring", false)` para evitar o erro "Function blocked during in/out signal".
+- O game over fica em `process_mode = ALWAYS` e pausa a árvore; os botões continuam funcionando. Antes de trocar de cena, `fase.gd` faz `get_tree().paused = false`.
 - Ao encerrar o jogo no meio de um efeito sonoro, o Godot pode imprimir um aviso de áudio "ainda em uso". É do desligamento do AudioServer, não afeta o jogo.
 
 ### Próximos passos sugeridos

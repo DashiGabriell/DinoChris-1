@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/fase.gd" id="1_fase"]
 [ext_resource type="PackedScene" path="res://scenes/jogador.tscn" id="2_jogador"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://bfav62oaod5ou" path="res://assets/ceu/ceu-01.exr" id="5_ceu"]
 [ext_resource type="Texture2D" path="res://assets/ui/icone_dino.svg" id="6_dino"]
 [ext_resource type="Texture2D" path="res://assets/ui/icone_carne.svg" id="7_carne"]
+[ext_resource type="Script" path="res://scripts/game_over.gd" id="8_game_over"]
 
 [sub_resource type="PanoramaSkyMaterial" id="SkyMaterial_1"]
 panorama = ExtResource("5_ceu")
@@ -81,6 +82,14 @@ theme_type_variation = "NomeJogador"
 theme_override_font_sizes/font_size = 30
 text = "AMIGO"
 vertical_alignment = 1
+
+[node name="Coracoes" type="HBoxContainer" parent="HUD"]
+offset_left = 20.0
+offset_top = 92.0
+offset_right = 250.0
+offset_bottom = 126.0
+mouse_filter = 2
+theme_override_constants/separation = 4
 
 [node name="Missao" type="PanelContainer" parent="HUD"]
 anchors_preset = 1
@@ -192,3 +201,83 @@ theme_type_variation = "Aviso"
 text = "NÍVEL 2!"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="GameOver" type="CanvasLayer" parent="."]
+process_mode = 3
+layer = 20
+visible = false
+script = ExtResource("8_game_over")
+
+[node name="Escurecer" type="ColorRect" parent="GameOver"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.025, 0.012, 0.018, 0.82)
+mouse_filter = 0
+
+[node name="Centro" type="CenterContainer" parent="GameOver"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Caixa" type="PanelContainer" parent="GameOver/Centro"]
+custom_minimum_size = Vector2(620, 0)
+theme_type_variation = "PainelMadeira"
+
+[node name="Margem" type="MarginContainer" parent="GameOver/Centro/Caixa"]
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_bottom = 28
+
+[node name="Conteudo" type="VBoxContainer" parent="GameOver/Centro/Caixa/Margem"]
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Icone" type="TextureRect" parent="GameOver/Centro/Caixa/Margem/Conteudo"]
+custom_minimum_size = Vector2(84, 84)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("6_dino")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Titulo" type="Label" parent="GameOver/Centro/Caixa/Margem/Conteudo"]
+layout_mode = 2
+theme_type_variation = "Titulo"
+theme_override_constants/outline_size = 9
+theme_override_font_sizes/font_size = 56
+text = "QUASE!"
+horizontal_alignment = 1
+
+[node name="Mensagem" type="Label" parent="GameOver/Centro/Caixa/Margem/Conteudo"]
+layout_mode = 2
+theme_type_variation = "Apoio"
+theme_override_colors/font_color = Color(0.96, 0.87, 0.68, 1)
+theme_override_font_sizes/font_size = 23
+text = "VAMOS TENTAR DE NOVO?"
+horizontal_alignment = 1
+
+[node name="Botoes" type="HBoxContainer" parent="GameOver/Centro/Caixa/Margem/Conteudo"]
+layout_mode = 2
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="BotaoTentar" type="Button" parent="GameOver/Centro/Caixa/Margem/Conteudo/Botoes"]
+custom_minimum_size = Vector2(330, 78)
+layout_mode = 2
+theme_type_variation = "Botao"
+theme_override_font_sizes/font_size = 28
+text = "TENTAR NOVAMENTE"
+
+[node name="BotaoSair" type="Button" parent="GameOver/Centro/Caixa/Margem/Conteudo/Botoes"]
+custom_minimum_size = Vector2(170, 78)
+layout_mode = 2
+theme_type_variation = "BotaoPedra"
+theme_override_font_sizes/font_size = 26
+text = "SAIR"

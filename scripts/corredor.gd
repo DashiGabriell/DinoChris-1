@@ -38,6 +38,8 @@ const ALTURA_QUEDA: float = -7.0
 const ESPACO_ENTRE_OBSTACULOS: float = 20.0
 ## Margem de chão firme antes/depois de um buraco para o ponto seguro.
 const MARGEM_SEGURA: float = 2.4
+## Distância depois do buraco/lava em que o dino volta após levar dano.
+const MARGEM_APOS_DANO: float = 3.0
 
 ## Distância mínima e máxima de chão livre entre dois troncos rolantes (m).
 const TRONCO_ESPACO_MIN: float = 26.0
@@ -607,13 +609,42 @@ func _resgatar(motivo: String) -> void:
 	if _resgatando or _jogador == null:
 		return
 	_resgatando = true
+	var buraco := _buraco_em_z(_jogador.global_position.z)
 	var cor: Color = Color(1.0, 0.55, 0.15) if motivo == "lava" else Color(0.85, 0.9, 1.0)
-	_jogador.call("voltar_ao_checkpoint")
-	# O anel nasce no ponto de retorno (não no fundo do buraco): é o aviso de
-	# "voltei" que a criança vê.
-	_estouro(_jogador.global_position, cor)
+	_jogador.call("receber_dano", motivo)
+
+	if bool(_jogador.call("esta_vivo")):
+		var alvo := _posicao_apos_obstaculo(buraco)
+		_jogador.call("reposicionar_apos_obstaculo", alvo)
+		# O anel nasce no ponto de retorno (não no fundo do buraco): é o aviso
+		# de "voltei" que a criança vê.
+		_estouro(alvo, cor)
+
+	if get_tree().paused:
+		_resgatando = false
+		return
 	await get_tree().create_timer(0.35).timeout
 	_resgatando = false
+
+
+func _buraco_em_z(z: float) -> Dictionary:
+	for dados in _pedacos:
+		for buraco in dados["buracos"]:
+			if z <= float(buraco["inicio"]) + 0.8 and z >= float(buraco["fim"]) - 0.8:
+				return buraco
+	return {}
+
+
+func _posicao_apos_obstaculo(buraco: Dictionary) -> Vector3:
+	if buraco.is_empty():
+		return _ponto_seguro
+
+	var z_alvo := float(buraco["fim"]) - MARGEM_APOS_DANO
+	while _perto_de_buraco(z_alvo):
+		z_alvo -= 1.0
+	if not _chao_firme_em(z_alvo):
+		z_alvo = z_seguro_perto(z_alvo)
+	return Vector3(0.0, 0.25, z_alvo)
 
 
 func _estouro(posicao: Vector3, cor: Color) -> void:

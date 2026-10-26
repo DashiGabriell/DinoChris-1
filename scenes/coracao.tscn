@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/coracao.gd" id="1_coracao"]
+[ext_resource type="Texture2D" path="res://assets/ui/icone_coracao.svg" id="2_icone"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_coracao"]
+radius = 0.5
+
+[node name="Coracao" type="Area3D" groups=["coracao"]]
+collision_layer = 0
+collision_mask = 2
+monitoring = false
+script = ExtResource("1_coracao")
+
+[node name="Colisao" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_coracao")
+
+[node name="Visual" type="Node3D" parent="."]
+position = Vector3(0, 0.1, 0)
+
+[node name="Sprite" type="Sprite3D" parent="Visual"]
+texture = ExtResource("2_icone")
+pixel_size = 0.0125
+billboard = 1
+
+[node name="Brilho" type="OmniLight3D" parent="Visual"]
+light_color = Color(1, 0.35, 0.25, 1)
+light_energy = 1.2
+omni_range = 3.5
