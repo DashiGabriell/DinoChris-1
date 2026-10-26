@@ -1,12 +1,411 @@
-[gd_resource type="Theme" load_steps=3 format=3]
+[gd_resource type="Theme" load_steps=22 format=3]
 
 [ext_resource type="FontFile" path="res://assets/fontes/Nunito-SemiBold.ttf" id="1_nunito"]
 [ext_resource type="FontFile" path="res://assets/fontes/LilitaOne-Regular.ttf" id="2_lilita"]
 
+[sub_resource type="StyleBoxFlat" id="SB_botao_normal"]
+content_margin_left = 36.0
+content_margin_top = 16.0
+content_margin_right = 36.0
+content_margin_bottom = 18.0
+bg_color = Color(0.13, 0.4, 0.21, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 8
+border_color = Color(0.055, 0.19, 0.1, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0.02, 0.08, 0.04, 0.55)
+shadow_size = 10
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="SB_botao_hover"]
+content_margin_left = 36.0
+content_margin_top = 16.0
+content_margin_right = 36.0
+content_margin_bottom = 18.0
+bg_color = Color(0.2, 0.55, 0.29, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 8
+border_color = Color(0.055, 0.19, 0.1, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+shadow_color = Color(0.02, 0.08, 0.04, 0.55)
+shadow_size = 14
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="SB_botao_pressed"]
+content_margin_left = 36.0
+content_margin_top = 22.0
+content_margin_right = 36.0
+content_margin_bottom = 12.0
+bg_color = Color(0.09, 0.31, 0.16, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.045, 0.16, 0.08, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+
+[sub_resource type="StyleBoxFlat" id="SB_botao_focus"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 0.82, 0.3, 1)
+corner_radius_top_left = 26
+corner_radius_top_right = 26
+corner_radius_bottom_right = 26
+corner_radius_bottom_left = 26
+expand_margin_left = 4.0
+expand_margin_top = 4.0
+expand_margin_right = 4.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="SB_botao_disabled"]
+content_margin_left = 36.0
+content_margin_top = 16.0
+content_margin_right = 36.0
+content_margin_bottom = 18.0
+bg_color = Color(0.22, 0.24, 0.22, 0.9)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 6
+border_color = Color(0.12, 0.13, 0.12, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+
+[sub_resource type="StyleBoxFlat" id="SB_pedra_normal"]
+content_margin_left = 30.0
+content_margin_top = 13.0
+content_margin_right = 30.0
+content_margin_bottom = 15.0
+bg_color = Color(0.25, 0.3, 0.26, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 7
+border_color = Color(0.11, 0.14, 0.12, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0.03, 0.06, 0.04, 0.45)
+shadow_size = 8
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="SB_pedra_hover"]
+content_margin_left = 30.0
+content_margin_top = 13.0
+content_margin_right = 30.0
+content_margin_bottom = 15.0
+bg_color = Color(0.34, 0.4, 0.35, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 7
+border_color = Color(0.11, 0.14, 0.12, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="SB_pedra_pressed"]
+content_margin_left = 30.0
+content_margin_top = 18.0
+content_margin_right = 30.0
+content_margin_bottom = 10.0
+bg_color = Color(0.18, 0.22, 0.19, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.1, 0.12, 0.1, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="SB_painel_madeira"]
+content_margin_left = 26.0
+content_margin_top = 22.0
+content_margin_right = 26.0
+content_margin_bottom = 24.0
+bg_color = Color(0.2, 0.12, 0.07, 0.96)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.37, 0.23, 0.12, 1)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0.02, 0.04, 0.02, 0.55)
+shadow_size = 20
+shadow_offset = Vector2(0, 10)
+
+[sub_resource type="StyleBoxFlat" id="SB_painel_escuro"]
+content_margin_left = 30.0
+content_margin_top = 26.0
+content_margin_right = 30.0
+content_margin_bottom = 28.0
+bg_color = Color(0.035, 0.07, 0.05, 0.97)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.38, 0.62, 0.38, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 24
+shadow_offset = Vector2(0, 12)
+
+[sub_resource type="StyleBoxFlat" id="SB_selo_nivel"]
+content_margin_left = 18.0
+content_margin_top = 4.0
+content_margin_right = 18.0
+content_margin_bottom = 6.0
+bg_color = Color(0.96, 0.63, 0.15, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 5
+border_color = Color(0.34, 0.17, 0.04, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+
+[sub_resource type="StyleBoxFlat" id="SB_barra_fundo"]
+bg_color = Color(0.03, 0.09, 0.05, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.12, 0.25, 0.14, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="SB_barra_cheia"]
+bg_color = Color(0.48, 0.82, 0.28, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 5
+border_color = Color(0.16, 0.42, 0.12, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="SB_entrada_normal"]
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+bg_color = Color(0.045, 0.09, 0.06, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.24, 0.42, 0.25, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="SB_entrada_foco"]
+content_margin_left = 20.0
+content_margin_top = 8.0
+content_margin_right = 20.0
+content_margin_bottom = 8.0
+bg_color = Color(0.06, 0.12, 0.08, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 0.82, 0.3, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="SB_aviso"]
+content_margin_left = 30.0
+content_margin_top = 8.0
+content_margin_right = 30.0
+content_margin_bottom = 10.0
+bg_color = Color(0.52, 0.2, 0.08, 0.94)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 7
+border_color = Color(0.25, 0.08, 0.03, 1)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 12
+shadow_offset = Vector2(0, 5)
+
+[sub_resource type="StyleBoxFlat" id="SB_controle"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 10.0
+bg_color = Color(0.06, 0.12, 0.08, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 4
+border_color = Color(0.3, 0.52, 0.3, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="SB_painel_info"]
+content_margin_left = 34.0
+content_margin_top = 28.0
+content_margin_right = 34.0
+content_margin_bottom = 30.0
+bg_color = Color(0.06, 0.11, 0.08, 0.97)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.38, 0.64, 0.36, 1)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 24
+shadow_offset = Vector2(0, 12)
+
 [resource]
 default_font = ExtResource("1_nunito")
-default_font_size = 20
+default_font_size = 22
+Label/colors/font_color = Color(0.96, 0.91, 0.8, 1)
+Label/colors/font_outline_color = Color(0.045, 0.035, 0.025, 0.92)
+Label/constants/outline_size = 5
+Label/font_sizes/font_size = 22
 Titulo/base_type = &"Label"
+Titulo/colors/font_color = Color(1, 0.86, 0.38, 1)
+Titulo/colors/font_outline_color = Color(0.1, 0.045, 0.02, 1)
+Titulo/constants/outline_size = 12
+Titulo/font_sizes/font_size = 64
 Titulo/fonts/font = ExtResource("2_lilita")
+Subtitulo/base_type = &"Label"
+Subtitulo/colors/font_color = Color(0.63, 0.88, 0.73, 1)
+Subtitulo/colors/font_outline_color = Color(0.04, 0.1, 0.06, 1)
+Subtitulo/constants/outline_size = 7
+Subtitulo/font_sizes/font_size = 28
+Subtitulo/fonts/font = ExtResource("2_lilita")
+NomeJogador/base_type = &"Label"
+NomeJogador/colors/font_color = Color(1, 0.92, 0.68, 1)
+NomeJogador/colors/font_outline_color = Color(0.09, 0.045, 0.02, 1)
+NomeJogador/constants/outline_size = 9
+NomeJogador/font_sizes/font_size = 30
+NomeJogador/fonts/font = ExtResource("2_lilita")
+Nivel/base_type = &"Label"
+Nivel/colors/font_color = Color(1, 0.87, 0.42, 1)
+Nivel/colors/font_outline_color = Color(0.16, 0.06, 0.02, 1)
+Nivel/constants/outline_size = 8
+Nivel/font_sizes/font_size = 30
+Nivel/fonts/font = ExtResource("2_lilita")
+Contador/base_type = &"Label"
+Contador/colors/font_color = Color(1, 0.97, 0.88, 1)
+Contador/colors/font_outline_color = Color(0.07, 0.04, 0.02, 1)
+Contador/constants/outline_size = 7
+Contador/font_sizes/font_size = 28
+Contador/fonts/font = ExtResource("2_lilita")
+Total/base_type = &"Label"
+Total/colors/font_color = Color(0.8, 0.92, 0.76, 1)
+Total/colors/font_outline_color = Color(0.04, 0.06, 0.04, 1)
+Total/constants/outline_size = 5
+Total/font_sizes/font_size = 20
+Apoio/base_type = &"Label"
+Apoio/colors/font_color = Color(0.86, 0.91, 0.82, 1)
+Apoio/colors/font_outline_color = Color(0.03, 0.05, 0.03, 1)
+Apoio/constants/outline_size = 4
+Apoio/font_sizes/font_size = 19
 Botao/base_type = &"Button"
+Botao/colors/font_color = Color(1, 0.98, 0.9, 1)
+Botao/colors/font_hover_color = Color(1, 1, 1, 1)
+Botao/colors/font_pressed_color = Color(0.9, 0.96, 0.84, 1)
+Botao/colors/font_focus_color = Color(1, 0.97, 0.86, 1)
+Botao/colors/font_disabled_color = Color(0.6, 0.62, 0.58, 1)
+Botao/colors/font_outline_color = Color(0.035, 0.12, 0.055, 1)
+Botao/constants/outline_size = 6
+Botao/font_sizes/font_size = 42
 Botao/fonts/font = ExtResource("2_lilita")
+Botao/styles/normal = SubResource("SB_botao_normal")
+Botao/styles/hover = SubResource("SB_botao_hover")
+Botao/styles/pressed = SubResource("SB_botao_pressed")
+Botao/styles/focus = SubResource("SB_botao_focus")
+Botao/styles/disabled = SubResource("SB_botao_disabled")
+BotaoPedra/base_type = &"Button"
+BotaoPedra/colors/font_color = Color(0.96, 0.93, 0.84, 1)
+BotaoPedra/colors/font_hover_color = Color(1, 1, 1, 1)
+BotaoPedra/colors/font_pressed_color = Color(0.86, 0.88, 0.82, 1)
+BotaoPedra/colors/font_focus_color = Color(1, 0.97, 0.86, 1)
+BotaoPedra/colors/font_outline_color = Color(0.04, 0.06, 0.045, 1)
+BotaoPedra/constants/outline_size = 5
+BotaoPedra/font_sizes/font_size = 28
+BotaoPedra/fonts/font = ExtResource("2_lilita")
+BotaoPedra/styles/normal = SubResource("SB_pedra_normal")
+BotaoPedra/styles/hover = SubResource("SB_pedra_hover")
+BotaoPedra/styles/pressed = SubResource("SB_pedra_pressed")
+BotaoPedra/styles/focus = SubResource("SB_botao_focus")
+BotaoPedra/styles/disabled = SubResource("SB_botao_disabled")
+PainelMadeira/base_type = &"PanelContainer"
+PainelMadeira/styles/panel = SubResource("SB_painel_madeira")
+PainelEscuro/base_type = &"PanelContainer"
+PainelEscuro/styles/panel = SubResource("SB_painel_escuro")
+PainelInfo/base_type = &"PanelContainer"
+PainelInfo/styles/panel = SubResource("SB_painel_info")
+SeloNivel/base_type = &"PanelContainer"
+SeloNivel/styles/panel = SubResource("SB_selo_nivel")
+FitaAviso/base_type = &"PanelContainer"
+FitaAviso/styles/panel = SubResource("SB_aviso")
+BarraMissao/base_type = &"ProgressBar"
+BarraMissao/styles/background = SubResource("SB_barra_fundo")
+BarraMissao/styles/fill = SubResource("SB_barra_cheia")
+BarraMissao/font_sizes/font_size = 20
+EntradaNome/base_type = &"LineEdit"
+EntradaNome/colors/font_color = Color(1, 0.97, 0.9, 1)
+EntradaNome/colors/font_placeholder_color = Color(0.62, 0.74, 0.62, 1)
+EntradaNome/colors/caret_color = Color(1, 0.84, 0.35, 1)
+EntradaNome/font_sizes/font_size = 34
+EntradaNome/styles/normal = SubResource("SB_entrada_normal")
+EntradaNome/styles/focus = SubResource("SB_entrada_foco")
+Aviso/base_type = &"Label"
+Aviso/colors/font_color = Color(1, 0.9, 0.48, 1)
+Aviso/colors/font_outline_color = Color(0.16, 0.055, 0.015, 1)
+Aviso/constants/outline_size = 13
+Aviso/font_sizes/font_size = 64
+Aviso/fonts/font = ExtResource("2_lilita")
+Controle/base_type = &"PanelContainer"
+Controle/styles/panel = SubResource("SB_controle")

@@ -1,0 +1,228 @@
+[gd_scene load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://scripts/menu_diorama.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://assets/modelos/jogador/trexChrisAnim.glb" id="2_dino"]
+
+[sub_resource type="ProceduralSkyMaterial" id="Sky_mat"]
+sky_top_color = Color(0.42, 0.5, 0.78, 1)
+sky_horizon_color = Color(0.98, 0.76, 0.68, 1)
+sky_curve = 0.25
+ground_bottom_color = Color(0.18, 0.3, 0.2, 1)
+ground_horizon_color = Color(0.78, 0.7, 0.58, 1)
+ground_curve = 0.1
+sun_angle_max = 28.0
+sun_curve = 0.18
+
+[sub_resource type="Sky" id="Sky_1"]
+sky_material = SubResource("Sky_mat")
+radiance_size = 2
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 0
+background_color = Color(0, 0, 0, 0)
+ambient_light_source = 2
+ambient_light_color = Color(0.84, 0.82, 0.93, 1)
+ambient_light_energy = 1.75
+tonemap_mode = 4
+tonemap_exposure = 1.12
+fog_enabled = true
+fog_light_color = Color(0.94, 0.86, 0.8, 1)
+fog_density = 0.006
+fog_sky_affect = 0.0
+
+[sub_resource type="StandardMaterial3D" id="Mat_chao"]
+albedo_color = Color(0.38, 0.58, 0.3, 1)
+roughness = 1.0
+
+[sub_resource type="PlaneMesh" id="Mesh_chao"]
+material = SubResource("Mat_chao")
+size = Vector2(60, 60)
+
+[sub_resource type="StandardMaterial3D" id="Mat_areia"]
+albedo_color = Color(0.82, 0.67, 0.45, 1)
+roughness = 1.0
+
+[sub_resource type="CylinderMesh" id="Mesh_palco"]
+material = SubResource("Mat_areia")
+top_radius = 3.0
+bottom_radius = 3.35
+height = 0.35
+radial_segments = 12
+
+[sub_resource type="BoxMesh" id="Mesh_trilha"]
+material = SubResource("Mat_areia")
+size = Vector3(3.0, 0.06, 18.0)
+
+[sub_resource type="StandardMaterial3D" id="Mat_vulcao"]
+albedo_color = Color(0.26, 0.2, 0.18, 1)
+roughness = 1.0
+
+[sub_resource type="CylinderMesh" id="Mesh_vulcao"]
+material = SubResource("Mat_vulcao")
+top_radius = 0.45
+bottom_radius = 3.4
+height = 4.8
+radial_segments = 7
+rings = 2
+
+[sub_resource type="StandardMaterial3D" id="Mat_lava"]
+albedo_color = Color(1, 0.32, 0.08, 1)
+roughness = 0.8
+emission_enabled = true
+emission = Color(1, 0.25, 0.04, 1)
+emission_energy_multiplier = 2.2
+
+[sub_resource type="CylinderMesh" id="Mesh_lava"]
+material = SubResource("Mat_lava")
+top_radius = 0.55
+bottom_radius = 0.72
+height = 0.4
+radial_segments = 7
+
+[sub_resource type="StandardMaterial3D" id="Mat_morro"]
+albedo_color = Color(0.42, 0.68, 0.38, 1)
+roughness = 1.0
+
+[sub_resource type="SphereMesh" id="Mesh_morro"]
+material = SubResource("Mat_morro")
+radius = 2.0
+height = 4.0
+radial_segments = 12
+rings = 6
+
+[sub_resource type="StandardMaterial3D" id="Mat_mato"]
+albedo_color = Color(0.32, 0.58, 0.3, 1)
+roughness = 1.0
+
+[sub_resource type="SphereMesh" id="Mesh_mato"]
+material = SubResource("Mat_mato")
+radius = 0.62
+height = 1.15
+radial_segments = 8
+rings = 4
+
+[sub_resource type="StandardMaterial3D" id="Mat_pedra"]
+albedo_color = Color(0.42, 0.44, 0.38, 1)
+roughness = 1.0
+
+[sub_resource type="SphereMesh" id="Mesh_pedra"]
+material = SubResource("Mat_pedra")
+radius = 0.55
+height = 0.75
+radial_segments = 7
+rings = 4
+
+[node name="DioramaMenu" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="Sol" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-48, -28, 0)
+light_color = Color(1, 0.91, 0.78, 1)
+light_energy = 2.3
+shadow_enabled = true
+directional_shadow_max_distance = 30.0
+
+[node name="LuzDino" type="OmniLight3D" parent="."]
+position = Vector3(4.2, 3.2, 3.0)
+light_color = Color(1, 0.82, 0.62, 1)
+light_energy = 1.4
+omni_range = 9.0
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(0.0, 2.2, 7.4)
+fov = 42.0
+near = 0.1
+far = 120.0
+
+[node name="Cenario" type="Node3D" parent="."]
+
+[node name="Chao" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(0, -0.04, 0)
+mesh = SubResource("Mesh_chao")
+
+[node name="Trilha" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(2.9, -0.02, -3.0)
+mesh = SubResource("Mesh_trilha")
+
+[node name="Palco" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(2.9, -0.02, 0)
+mesh = SubResource("Mesh_palco")
+
+[node name="MorroEsquerdo" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(-7.5, 0.7, -13.0)
+scale = Vector3(5.8, 2.2, 3.8)
+mesh = SubResource("Mesh_morro")
+
+[node name="MorroCentro" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(0.5, 0.4, -15.0)
+scale = Vector3(7.2, 1.8, 4.0)
+mesh = SubResource("Mesh_morro")
+
+[node name="MorroDireito" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(8.5, 0.8, -12.0)
+scale = Vector3(5.2, 2.5, 3.4)
+mesh = SubResource("Mesh_morro")
+
+[node name="Vulcao" type="Node3D" parent="Cenario"]
+position = Vector3(7.4, 0, -11.5)
+rotation_degrees = Vector3(0, 18, 0)
+
+[node name="Cone" type="MeshInstance3D" parent="Cenario/Vulcao"]
+position = Vector3(0, 2.4, 0)
+mesh = SubResource("Mesh_vulcao")
+
+[node name="Lava" type="MeshInstance3D" parent="Cenario/Vulcao"]
+position = Vector3(0, 4.82, 0)
+mesh = SubResource("Mesh_lava")
+
+[node name="BrilhoLava" type="OmniLight3D" parent="Cenario/Vulcao"]
+position = Vector3(0, 5.0, 0)
+light_color = Color(1, 0.3, 0.08, 1)
+light_energy = 2.2
+omni_range = 9.0
+
+[node name="Mato1" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(-2.4, 0.45, -3.2)
+scale = Vector3(1.0, 1.0, 0.9)
+mesh = SubResource("Mesh_mato")
+
+[node name="Mato2" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(-1.3, 0.35, 1.8)
+scale = Vector3(0.8, 0.75, 0.8)
+mesh = SubResource("Mesh_mato")
+
+[node name="Mato3" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(4.8, 0.42, -2.0)
+scale = Vector3(1.1, 0.9, 1.0)
+mesh = SubResource("Mesh_mato")
+
+[node name="Mato4" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(5.6, 0.32, 1.8)
+scale = Vector3(0.7, 0.6, 0.7)
+mesh = SubResource("Mesh_mato")
+
+[node name="Pedra1" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(-2.9, 0.22, 1.1)
+rotation_degrees = Vector3(0, 22, 0)
+scale = Vector3(1.0, 0.8, 0.9)
+mesh = SubResource("Mesh_pedra")
+
+[node name="Pedra2" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(4.2, 0.18, 0.5)
+rotation_degrees = Vector3(0, -18, 0)
+scale = Vector3(0.75, 0.6, 0.7)
+mesh = SubResource("Mesh_pedra")
+
+[node name="Pedra3" type="MeshInstance3D" parent="Cenario"]
+position = Vector3(0.4, 0.14, 2.4)
+rotation_degrees = Vector3(0, 40, 0)
+scale = Vector3(0.55, 0.45, 0.55)
+mesh = SubResource("Mesh_pedra")
+
+[node name="TRex" parent="." instance=ExtResource("2_dino")]
+position = Vector3(2.9, 0.0, 0.0)
+rotation_degrees = Vector3(0, 180, 0)
+scale = Vector3(1.05, 1.05, 1.05)

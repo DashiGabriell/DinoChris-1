@@ -1,131 +1,61 @@
-[gd_scene format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/tela_inicial.gd" id="1_tela"]
-[ext_resource type="Texture2D" path="res://icon.svg" id="2_icone"]
+[ext_resource type="PackedScene" path="res://scenes/diorama_menu.tscn" id="2_diorama"]
+[ext_resource type="Texture2D" path="res://assets/ui/icone_dino.svg" id="3_dino"]
+[ext_resource type="Texture2D" path="res://assets/ui/icone_pegada.svg" id="4_pegada"]
+[ext_resource type="Texture2D" path="res://assets/ui/icone_mover.svg" id="5_mover"]
+[ext_resource type="Texture2D" path="res://assets/ui/icone_pular.svg" id="6_pular"]
+[ext_resource type="Texture2D" path="res://assets/ui/icone_rugir.svg" id="7_rugir"]
+[ext_resource type="Texture2D" path="res://assets/ui/icone_morder.svg" id="8_morder"]
+[ext_resource type="Texture2D" path="res://assets/ui/icone_carne.svg" id="9_carne"]
+[ext_resource type="Texture2D" path="res://assets/ui/folha_canto.svg" id="10_folha"]
 
-[sub_resource type="Gradient" id="Gradient_1"]
+[sub_resource type="Gradient" id="Grad_ceu"]
+offsets = PackedFloat32Array(0, 0.38, 0.72, 1)
+colors = PackedColorArray(0.46, 0.55, 0.84, 1, 0.73, 0.67, 0.88, 1, 0.97, 0.77, 0.72, 1, 0.86, 0.86, 0.66, 1)
+
+[sub_resource type="GradientTexture2D" id="Tex_ceu"]
+gradient = SubResource("Grad_ceu")
+width = 512
+height = 512
+fill_from = Vector2(0, 0)
+fill_to = Vector2(0, 1)
+
+[sub_resource type="Gradient" id="Grad_esq"]
 offsets = PackedFloat32Array(0, 0.55, 1)
-colors = PackedColorArray(0.04, 0.1, 0.07, 1, 0.08, 0.24, 0.16, 1, 0.24, 0.55, 0.33, 1)
+colors = PackedColorArray(0.025, 0.065, 0.04, 0.78, 0.025, 0.065, 0.04, 0.2, 0.025, 0.065, 0.04, 0)
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_1"]
-gradient = SubResource("Gradient_1")
-width = 256
-height = 256
-fill_from = Vector2(0.5, 0)
-fill_to = Vector2(0.5, 1)
+[sub_resource type="GradientTexture2D" id="Tex_esq"]
+gradient = SubResource("Grad_esq")
+width = 512
+height = 512
+fill_from = Vector2(0, 0.5)
+fill_to = Vector2(0.72, 0.5)
 
-[sub_resource type="StyleBoxFlat" id="SB_verde"]
-content_margin_left = 40.0
-content_margin_top = 16.0
-content_margin_right = 40.0
-content_margin_bottom = 16.0
-bg_color = Color(0.16, 0.55, 0.28, 1)
-border_width_bottom = 7
-border_color = Color(0.06, 0.25, 0.11, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+[sub_resource type="Gradient" id="Grad_vinheta"]
+offsets = PackedFloat32Array(0, 0.52, 1)
+colors = PackedColorArray(0.01, 0.02, 0.01, 0, 0.01, 0.02, 0.01, 0, 0.01, 0.02, 0.01, 0.74)
 
-[sub_resource type="StyleBoxFlat" id="SB_verde_hover"]
-content_margin_left = 40.0
-content_margin_top = 16.0
-content_margin_right = 40.0
-content_margin_bottom = 16.0
-bg_color = Color(0.21, 0.66, 0.34, 1)
-border_width_bottom = 7
-border_color = Color(0.06, 0.25, 0.11, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+[sub_resource type="GradientTexture2D" id="Tex_vinheta"]
+gradient = SubResource("Grad_vinheta")
+width = 512
+height = 512
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
 
-[sub_resource type="StyleBoxFlat" id="SB_verde_press"]
-content_margin_left = 40.0
-content_margin_top = 18.0
-content_margin_right = 40.0
-content_margin_bottom = 14.0
-bg_color = Color(0.12, 0.44, 0.21, 1)
-border_width_bottom = 3
-border_color = Color(0.06, 0.25, 0.11, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
+[sub_resource type="Gradient" id="Grad_luz"]
+offsets = PackedFloat32Array(0, 0.3, 1)
+colors = PackedColorArray(1, 0.92, 0.45, 0, 1, 0.92, 0.45, 0.95, 1, 0.62, 0.18, 0)
 
-[sub_resource type="StyleBoxFlat" id="SB_foco"]
-bg_color = Color(1, 1, 1, 0)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(1, 0.85, 0.25, 1)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-
-[sub_resource type="StyleBoxFlat" id="SB_cinza"]
-content_margin_left = 36.0
-content_margin_top = 16.0
-content_margin_right = 36.0
-content_margin_bottom = 16.0
-bg_color = Color(0.24, 0.26, 0.27, 1)
-border_width_bottom = 6
-border_color = Color(0.1, 0.11, 0.12, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
-[sub_resource type="StyleBoxFlat" id="SB_cinza_hover"]
-content_margin_left = 36.0
-content_margin_top = 16.0
-content_margin_right = 36.0
-content_margin_bottom = 16.0
-bg_color = Color(0.32, 0.35, 0.36, 1)
-border_width_bottom = 6
-border_color = Color(0.1, 0.11, 0.12, 1)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
-[sub_resource type="StyleBoxFlat" id="SB_painel"]
-bg_color = Color(0.05, 0.09, 0.07, 0.97)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(0.3, 0.65, 0.42, 1)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-
-[sub_resource type="StyleBoxFlat" id="SB_entrada"]
-bg_color = Color(0.02, 0.05, 0.03, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.22, 0.48, 0.3, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
-[sub_resource type="StyleBoxFlat" id="SB_entrada_foco"]
-bg_color = Color(0.04, 0.09, 0.05, 1)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(1, 0.85, 0.25, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
+[sub_resource type="GradientTexture2D" id="Tex_luz"]
+gradient = SubResource("Grad_luz")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
 
 [node name="TelaInicial" type="Control"]
 anchor_right = 1.0
@@ -134,158 +64,385 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_tela")
 
-[node name="Fundo" type="TextureRect" parent="."]
+[node name="Ceu" type="TextureRect" parent="."]
+z_index = -2
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = SubResource("GradientTexture2D_1")
+texture = SubResource("Tex_ceu")
 expand_mode = 1
 stretch_mode = 0
 
-[node name="Icone" type="TextureRect" parent="."]
+[node name="Sol" type="TextureRect" parent="."]
+z_index = -1
 anchor_left = 1.0
-anchor_top = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -420.0
-offset_top = -420.0
+offset_left = -430.0
+offset_top = -180.0
+offset_right = -110.0
+offset_bottom = 140.0
+grow_horizontal = 0
 mouse_filter = 2
-modulate = Color(1, 1, 1, 0.16)
-texture = ExtResource("2_icone")
+modulate = Color(1, 0.93, 0.72, 0.62)
+texture = SubResource("Tex_luz")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Centro" type="CenterContainer" parent="."]
+[node name="Diorama" type="SubViewportContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Diorama"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1280, 720)
+render_target_update_mode = 4
+
+[node name="Cena" parent="Diorama/SubViewport" instance=ExtResource("2_diorama")]
+
+[node name="Vinheta" type="TextureRect" parent="."]
+z_index = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("Tex_vinheta")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="SombraEsquerda" type="TextureRect" parent="."]
+z_index = 3
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("Tex_esq")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="VagaLumes" type="CPUParticles2D" parent="."]
+z_index = 4
+position = Vector2(640, 360)
+amount = 26
+lifetime = 7.0
+preprocess = 4.0
+local_coords = false
+texture = SubResource("Tex_luz")
+emission_shape = 3
+emission_rect_extents = Vector2(620, 340)
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 3.0
+initial_velocity_max = 14.0
+scale_amount_min = 0.15
+scale_amount_max = 0.55
+color = Color(1, 0.9, 0.45, 0.85)
+
+[node name="FolhaTopo" type="TextureRect" parent="."]
+z_index = 4
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -230.0
+offset_top = -38.0
+offset_right = 42.0
+offset_bottom = 234.0
+grow_horizontal = 0
+rotation = 0.42
+mouse_filter = 2
+modulate = Color(1, 1, 1, 0.17)
+texture = ExtResource("10_folha")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="FolhaBase" type="TextureRect" parent="."]
+z_index = 4
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = -222.0
+offset_right = 220.0
+offset_bottom = -20.0
+grow_vertical = 0
+rotation = -0.28
+mouse_filter = 2
+modulate = Color(1, 1, 1, 0.13)
+texture = ExtResource("10_folha")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Centro" type="Control" parent="."]
+z_index = 5
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="Conteudo" type="VBoxContainer" parent="Centro"]
-custom_minimum_size = Vector2(580, 0)
-theme_override_constants/separation = 26
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 88.0
+offset_top = -304.0
+offset_right = 648.0
+offset_bottom = 304.0
+grow_vertical = 2
+theme_override_constants/separation = 14
 alignment = 1
 
 [node name="Titulo" type="Label" parent="Centro/Conteudo"]
 theme_type_variation = "Titulo"
-theme_override_colors/font_color = Color(1, 0.88, 0.35, 1)
-theme_override_colors/font_outline_color = Color(0.12, 0.05, 0.02, 1)
 theme_override_constants/outline_size = 18
-theme_override_font_sizes/font_size = 72
-text = "SUPER T-REX
-CORAJOSO"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 88
+text = "DINO-CHRIS"
+
+[node name="Subtitulo" type="Label" parent="Centro/Conteudo"]
+theme_type_variation = "Subtitulo"
+theme_override_colors/font_color = Color(0.74, 0.94, 0.78, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 25
+text = "AVENTURA NA SELVA"
+
+[node name="RotuloNome" type="Label" parent="Centro/Conteudo"]
+theme_type_variation = "NomeJogador"
+theme_override_colors/font_color = Color(0.96, 0.91, 0.74, 1)
+theme_override_font_sizes/font_size = 26
+text = "JOGADOR: AMIGO"
 
 [node name="BotaoComecar" type="Button" parent="Centro/Conteudo"]
+custom_minimum_size = Vector2(0, 92)
 theme_type_variation = "Botao"
-custom_minimum_size = Vector2(0, 96)
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.05, 0.18, 0.08, 1)
-theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 46
-theme_override_styles/focus = SubResource("SB_foco")
-theme_override_styles/hover = SubResource("SB_verde_hover")
-theme_override_styles/normal = SubResource("SB_verde")
-theme_override_styles/pressed = SubResource("SB_verde_press")
+icon = ExtResource("4_pegada")
+icon_max_width = 46
 text = "COMEÇAR"
 
 [node name="BotaoNome" type="Button" parent="Centro/Conteudo"]
+custom_minimum_size = Vector2(0, 92)
 theme_type_variation = "Botao"
-custom_minimum_size = Vector2(0, 96)
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.05, 0.18, 0.08, 1)
-theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 46
-theme_override_styles/focus = SubResource("SB_foco")
-theme_override_styles/hover = SubResource("SB_verde_hover")
-theme_override_styles/normal = SubResource("SB_verde")
-theme_override_styles/pressed = SubResource("SB_verde_press")
+icon = ExtResource("3_dino")
+icon_max_width = 46
 text = "SEU NOME"
 
-[node name="RotuloNome" type="Label" parent="Centro/Conteudo"]
-theme_override_colors/font_color = Color(0.85, 1, 0.88, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 10
-theme_override_font_sizes/font_size = 32
-text = "JOGADOR: AMIGO"
-horizontal_alignment = 1
+[node name="BotaoComoJogar" type="Button" parent="Centro/Conteudo"]
+custom_minimum_size = Vector2(0, 58)
+theme_type_variation = "BotaoPedra"
+theme_override_font_sizes/font_size = 27
+text = "COMO JOGAR"
+
+[node name="Dica" type="Label" parent="Centro/Conteudo"]
+theme_type_variation = "Apoio"
+theme_override_colors/font_color = Color(0.78, 0.88, 0.76, 0.9)
+theme_override_font_sizes/font_size = 17
+text = "MOVER  •  PULAR  •  RUGIR  •  MORDER"
 
 [node name="Escurecer" type="ColorRect" parent="."]
 visible = false
+z_index = 10
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.62)
+color = Color(0.015, 0.035, 0.022, 0.8)
 
 [node name="PainelNome" type="CenterContainer" parent="."]
 visible = false
+z_index = 20
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Caixa" type="PanelContainer" parent="PainelNome"]
-custom_minimum_size = Vector2(640, 0)
-theme_override_styles/panel = SubResource("SB_painel")
+custom_minimum_size = Vector2(620, 0)
+theme_type_variation = "PainelEscuro"
 
 [node name="Margem" type="MarginContainer" parent="PainelNome/Caixa"]
-theme_override_constants/margin_left = 36
-theme_override_constants/margin_top = 32
-theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 32
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_top = 26
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_bottom = 30
 
 [node name="ConteudoNome" type="VBoxContainer" parent="PainelNome/Caixa/Margem"]
-theme_override_constants/separation = 22
+theme_override_constants/separation = 16
+
+[node name="IconeNome" type="TextureRect" parent="PainelNome/Caixa/Margem/ConteudoNome"]
+custom_minimum_size = Vector2(74, 74)
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("3_dino")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Instrucao" type="Label" parent="PainelNome/Caixa/Margem/ConteudoNome"]
 theme_type_variation = "Titulo"
-theme_override_colors/font_color = Color(1, 0.92, 0.6, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 36
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 40
 text = "DIGITE SEU NOME"
 horizontal_alignment = 1
 
 [node name="EntradaNome" type="LineEdit" parent="PainelNome/Caixa/Margem/ConteudoNome"]
 custom_minimum_size = Vector2(0, 76)
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_placeholder_color = Color(0.6, 0.7, 0.62, 1)
+theme_type_variation = "EntradaNome"
 theme_override_font_sizes/font_size = 38
-theme_override_styles/focus = SubResource("SB_entrada_foco")
-theme_override_styles/normal = SubResource("SB_entrada")
 max_length = 16
 placeholder_text = "AMIGO"
 alignment = 1
 
+[node name="DicaNome" type="Label" parent="PainelNome/Caixa/Margem/ConteudoNome"]
+theme_type_variation = "Apoio"
+theme_override_colors/font_color = Color(0.72, 0.84, 0.7, 1)
+theme_override_font_sizes/font_size = 17
+text = "ATÉ 16 LETRAS • PODE SER UM APELIDO"
+horizontal_alignment = 1
+
 [node name="BotoesNome" type="HBoxContainer" parent="PainelNome/Caixa/Margem/ConteudoNome"]
-theme_override_constants/separation = 20
+theme_override_constants/separation = 18
 alignment = 1
 
 [node name="BotaoSalvar" type="Button" parent="PainelNome/Caixa/Margem/ConteudoNome/BotoesNome"]
+custom_minimum_size = Vector2(250, 78)
 theme_type_variation = "Botao"
-custom_minimum_size = Vector2(240, 78)
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.05, 0.18, 0.08, 1)
-theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 34
-theme_override_styles/focus = SubResource("SB_foco")
-theme_override_styles/hover = SubResource("SB_verde_hover")
-theme_override_styles/normal = SubResource("SB_verde")
-theme_override_styles/pressed = SubResource("SB_verde_press")
 text = "SALVAR"
 
 [node name="BotaoCancelar" type="Button" parent="PainelNome/Caixa/Margem/ConteudoNome/BotoesNome"]
-theme_type_variation = "Botao"
-custom_minimum_size = Vector2(240, 78)
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 34
-theme_override_styles/focus = SubResource("SB_foco")
-theme_override_styles/hover = SubResource("SB_cinza_hover")
-theme_override_styles/normal = SubResource("SB_cinza")
-theme_override_styles/pressed = SubResource("SB_cinza")
+custom_minimum_size = Vector2(250, 78)
+theme_type_variation = "BotaoPedra"
+theme_override_font_sizes/font_size = 30
 text = "CANCELAR"
+
+[node name="PainelControles" type="CenterContainer" parent="."]
+visible = false
+z_index = 20
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Caixa" type="PanelContainer" parent="PainelControles"]
+custom_minimum_size = Vector2(740, 0)
+theme_type_variation = "PainelInfo"
+
+[node name="Margem" type="MarginContainer" parent="PainelControles/Caixa"]
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="ConteudoControles" type="VBoxContainer" parent="PainelControles/Caixa/Margem"]
+theme_override_constants/separation = 12
+
+[node name="TituloControles" type="Label" parent="PainelControles/Caixa/Margem/ConteudoControles"]
+theme_type_variation = "Titulo"
+theme_override_constants/outline_size = 9
+theme_override_font_sizes/font_size = 48
+text = "COMO JOGAR"
+horizontal_alignment = 1
+
+[node name="SubtituloControles" type="Label" parent="PainelControles/Caixa/Margem/ConteudoControles"]
+theme_type_variation = "Apoio"
+theme_override_colors/font_color = Color(0.78, 0.9, 0.76, 1)
+theme_override_font_sizes/font_size = 19
+text = "DINO-CHRIS ADORA EXPLORAR A SELVA!"
+horizontal_alignment = 1
+
+[node name="Grade" type="GridContainer" parent="PainelControles/Caixa/Margem/ConteudoControles"]
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 8
+columns = 2
+
+[node name="IconeMover" type="TextureRect" parent="PainelControles/Caixa/Margem/ConteudoControles/Grade"]
+custom_minimum_size = Vector2(52, 52)
+mouse_filter = 2
+texture = ExtResource("5_mover")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TextoMover" type="Label" parent="PainelControles/Caixa/Margem/ConteudoControles/Grade"]
+theme_type_variation = "Apoio"
+theme_override_font_sizes/font_size = 21
+text = "MOVER — ANALÓGICO / SETAS"
+vertical_alignment = 1
+
+[node name="IconePular" type="TextureRect" parent="PainelControles/Caixa/Margem/ConteudoControles/Grade"]
+custom_minimum_size = Vector2(52, 52)
+mouse_filter = 2
+texture = ExtResource("6_pular")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TextoPular" type="Label" parent="PainelControles/Caixa/Margem/ConteudoControles/Grade"]
+theme_type_variation = "Apoio"
+theme_override_font_sizes/font_size = 21
+text = "PULAR — ESPAÇO / A"
+vertical_alignment = 1
+
+[node name="IconeRugir" type="TextureRect" parent="PainelControles/Caixa/Margem/ConteudoControles/Grade"]
+custom_minimum_size = Vector2(52, 52)
+mouse_filter = 2
+texture = ExtResource("7_rugir")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TextoRugir" type="Label" parent="PainelControles/Caixa/Margem/ConteudoControles/Grade"]
+theme_type_variation = "Apoio"
+theme_override_font_sizes/font_size = 21
+text = "RUGIR — E / X"
+vertical_alignment = 1
+
+[node name="IconeMorder" type="TextureRect" parent="PainelControles/Caixa/Margem/ConteudoControles/Grade"]
+custom_minimum_size = Vector2(52, 52)
+mouse_filter = 2
+texture = ExtResource("8_morder")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TextoMorder" type="Label" parent="PainelControles/Caixa/Margem/ConteudoControles/Grade"]
+theme_type_variation = "Apoio"
+theme_override_font_sizes/font_size = 21
+text = "MORDER — F / B"
+vertical_alignment = 1
+
+[node name="IconeComer" type="TextureRect" parent="PainelControles/Caixa/Margem/ConteudoControles/Grade"]
+custom_minimum_size = Vector2(52, 52)
+mouse_filter = 2
+texture = ExtResource("9_carne")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TextoComer" type="Label" parent="PainelControles/Caixa/Margem/ConteudoControles/Grade"]
+theme_type_variation = "Apoio"
+theme_override_font_sizes/font_size = 21
+text = "COMER — CHEGUE PERTO"
+vertical_alignment = 1
+
+[node name="DicaControles" type="Label" parent="PainelControles/Caixa/Margem/ConteudoControles"]
+theme_type_variation = "Apoio"
+theme_override_colors/font_color = Color(0.68, 0.8, 0.68, 0.9)
+theme_override_font_sizes/font_size = 16
+text = "OS BOTÕES DO CONTROLE TAMBÉM FUNCIONAM"
+horizontal_alignment = 1
+
+[node name="BotaoEfeitos" type="Button" parent="PainelControles/Caixa/Margem/ConteudoControles"]
+custom_minimum_size = Vector2(300, 46)
+size_flags_horizontal = 4
+theme_type_variation = "BotaoPedra"
+theme_override_font_sizes/font_size = 19
+text = "EFEITOS: NORMAIS"
+
+[node name="BotaoFecharControles" type="Button" parent="PainelControles/Caixa/Margem/ConteudoControles"]
+custom_minimum_size = Vector2(220, 56)
+size_flags_horizontal = 4
+theme_type_variation = "BotaoPedra"
+theme_override_font_sizes/font_size = 28
+text = "VOLTAR"
