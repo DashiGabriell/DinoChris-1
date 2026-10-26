@@ -12,7 +12,6 @@ extends CharacterBody3D
 
 signal comida_coletada(no_nivel: int, meta: int, nivel: int, total: int)
 signal subiu_nivel(nivel: int)
-signal reiniciou
 
 ## Quantas comidas saudáveis o dino precisa por nível (sobe 1 a cada nível).
 const META_BASE: int = 8
@@ -294,11 +293,9 @@ func definir_checkpoint(posicao: Vector3) -> void:
 func voltar_ao_checkpoint() -> void:
 	global_position = checkpoint
 	velocity = Vector3.ZERO
+	_acao = ""
+	_movendo = false
+	if anim != null:
+		anim.speed_scale = 1.0
 	Sons.tocar("pulo", -4.0, 0.7)
-
-
-func reiniciar() -> void:
-	checkpoint = posicao_inicial
-	global_position = posicao_inicial
-	velocity = Vector3.ZERO
-	reiniciou.emit()
+	camera_rig.call("tremer", 0.12, 0.25)

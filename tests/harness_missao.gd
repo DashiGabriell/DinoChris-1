@@ -1,4 +1,5 @@
 extends Node
+## Teste da missão infinita: HUD, comidas geradas no corredor, subida de nível.
 
 var _falhas: int = 0
 
@@ -6,8 +7,9 @@ var _falhas: int = 0
 func _ready() -> void:
 	var cena: PackedScene = load("res://scenes/fase_1.tscn")
 	var fase: Node3D = cena.instantiate()
+	fase.get_node("Corredor").set("semente", 20261023)
 	add_child(fase)
-	await _esperar_fisica(3)
+	await _esperar_fisica(6)
 
 	var jogador: Node3D = fase.get_node_or_null("TRex")
 	var hud: CanvasLayer = fase.get_node_or_null("HUD")
@@ -32,27 +34,30 @@ func _ready() -> void:
 	for no in get_tree().get_nodes_in_group("coletavel"):
 		if not fase.is_ancestor_of(no):
 			continue
+		if no.global_position.y > 0.1:
+			continue
 		tipos.append(int(no.get("tipo")))
 		posicoes.append(no.global_position)
 
-	_checar(tipos.size() == 24, "24 comidas na fase (achei %d)" % tipos.size())
+	_checar(posicoes.size() >= 8, "comidas no corredor (achei %d)" % posicoes.size())
 
-	var alternado: bool = true
-	for i in tipos.size():
-		if tipos[i] != i % 4:
-			alternado = false
-	_checar(alternado, "comidas alternam carne, fruta, vegetal e água")
+	var vistos: Array[int] = []
+	for tipo in tipos:
+		if not vistos.has(tipo):
+			vistos.append(tipo)
+	_checar(vistos.size() == 4, "comidas têm os 4 tipos (achei %d)" % vistos.size())
 
-	var primeiro: Node = get_tree().get_nodes_in_group("coletavel")[0]
-	_checar(
-		primeiro.get_node("Visual").get_child_count() > 0,
-		"comida tem desenho 3D montado"
-	)
+	if not posicoes.is_empty():
+		var primeiro: Node = get_tree().get_nodes_in_group("coletavel")[0]
+		_checar(
+			primeiro.find_child("Visual", true, false).get_child_count() > 0,
+			"comida tem desenho 3D montado"
+		)
 
 	var total := 0
-	for i in 8:
+	for i in mini(8, posicoes.size()):
 		jogador.global_position = posicoes[i]
-		await _esperar_fisica(6)
+		await _esperar_fisica(5)
 		total = int(jogador.get("total_comida"))
 	_checar(total == 8, "dino comeu 8 comidas (achei %d)" % total)
 
@@ -65,20 +70,12 @@ func _ready() -> void:
 	_checar(barra.max_value == 9.0, "barra agora vai até 9 (achei %.1f)" % barra.max_value)
 	_checar(total_label.text == "TOTAL: 8", "HUD mostra total 8 (achei '%s')" % total_label.text)
 
-	# a reposição das comidas acontece depois de um process_frame; espera os dois
-	# tipos de frame para não depender da ordem/tempo do motor
-	for i in 8:
-		await get_tree().process_frame
-		await get_tree().physics_frame
-
+	# o corredor é infinito: depois do nível novo ainda existem comidas à frente
 	var comidas_depois: int = 0
 	for no in get_tree().get_nodes_in_group("coletavel"):
 		if fase.is_ancestor_of(no):
 			comidas_depois += 1
-	_checar(
-		comidas_depois == 23,
-		"comidas foram repostas ao subir de nível (achei %d)" % comidas_depois
-	)
+	_checar(comidas_depois > 0, "comidas continuam sendo geradas (%d)" % comidas_depois)
 
 	_finalizar()
 

@@ -77,7 +77,7 @@ func _ready() -> void:
 	_checar(anim.current_animation == "Idle", "volta para Idle depois do rugido (%s)" % anim.current_animation)
 
 	# --- locomocao ---
-	jogador.global_position = Vector3(0, 1, -40)
+	jogador.global_position = Vector3(0, 1, -10)
 	await _pousar(jogador)
 	Input.action_press("mover_frente")
 	await _esperar_fisica(30)
