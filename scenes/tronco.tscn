@@ -1,0 +1,88 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/tronco.gd" id="1_tronco"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tronco"]
+size = Vector3(8.8, 0.84, 0.84)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_madeira"]
+top_radius = 0.42
+bottom_radius = 0.42
+height = 8.6
+radial_segments = 24
+rings = 2
+
+[sub_resource type="StandardMaterial3D" id="Mat_madeira"]
+albedo_color = Color(0.47, 0.28, 0.13, 1)
+roughness = 1.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_corte"]
+top_radius = 0.43
+bottom_radius = 0.43
+height = 0.06
+radial_segments = 24
+
+[sub_resource type="StandardMaterial3D" id="Mat_corte"]
+albedo_color = Color(0.86, 0.68, 0.42, 1)
+roughness = 0.85
+
+[sub_resource type="SphereMesh" id="SphereMesh_no"]
+radius = 0.1
+height = 0.2
+radial_segments = 12
+rings = 6
+
+[sub_resource type="StandardMaterial3D" id="Mat_no"]
+albedo_color = Color(0.26, 0.15, 0.07, 1)
+roughness = 1.0
+
+[node name="Tronco" type="Area3D" groups=["tronco"]]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_tronco")
+
+[node name="Colisao" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_tronco")
+
+[node name="Visual" type="Node3D" parent="."]
+
+[node name="Madeira" type="MeshInstance3D" parent="Visual"]
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("CylinderMesh_madeira")
+material_override = SubResource("Mat_madeira")
+
+[node name="CorteEsquerdo" type="MeshInstance3D" parent="Visual"]
+position = Vector3(-4.28, 0, 0)
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("CylinderMesh_corte")
+material_override = SubResource("Mat_corte")
+
+[node name="CorteDireito" type="MeshInstance3D" parent="Visual"]
+position = Vector3(4.28, 0, 0)
+rotation_degrees = Vector3(0, 0, 90)
+mesh = SubResource("CylinderMesh_corte")
+material_override = SubResource("Mat_corte")
+
+[node name="No1" type="MeshInstance3D" parent="Visual"]
+position = Vector3(-3, 0.37, 0.18)
+scale = Vector3(0.8, 1, 0.8)
+mesh = SubResource("SphereMesh_no")
+material_override = SubResource("Mat_no")
+
+[node name="No2" type="MeshInstance3D" parent="Visual"]
+position = Vector3(-0.5, 0.12, 0.4)
+scale = Vector3(1, 0.9, 1)
+mesh = SubResource("SphereMesh_no")
+material_override = SubResource("Mat_no")
+
+[node name="No3" type="MeshInstance3D" parent="Visual"]
+position = Vector3(2.1, -0.2, 0.36)
+scale = Vector3(0.9, 1.1, 0.9)
+mesh = SubResource("SphereMesh_no")
+material_override = SubResource("Mat_no")
+
+[node name="No4" type="MeshInstance3D" parent="Visual"]
+position = Vector3(3.5, 0.3, -0.28)
+scale = Vector3(0.7, 0.8, 0.7)
+mesh = SubResource("SphereMesh_no")
+material_override = SubResource("Mat_no")

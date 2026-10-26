@@ -10,11 +10,14 @@ extends CanvasLayer
 
 var _jogador: Node = null
 var _tween_aviso: Tween = null
+var _flash_dano: ColorRect = null
+var _tween_dano: Tween = null
 
 
 func _ready() -> void:
 	nome.text = Dados.nome_jogador
 	aviso.modulate.a = 0.0
+	_criar_flash()
 
 	_jogador = get_tree().get_first_node_in_group("jogador")
 	if _jogador == null:
@@ -22,7 +25,29 @@ func _ready() -> void:
 
 	_jogador.connect("comida_coletada", _ao_coletar)
 	_jogador.connect("subiu_nivel", _ao_subir_nivel)
+	if _jogador.has_signal("levou_dano"):
+		_jogador.connect("levou_dano", _ao_levar_dano)
 	_atualizar(0, int(_jogador.call("meta_nivel")), 1, 0)
+
+
+func _criar_flash() -> void:
+	_flash_dano = ColorRect.new()
+	_flash_dano.color = Color(1.0, 0.12, 0.05, 0.0)
+	_flash_dano.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_flash_dano.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_flash_dano.z_index = 50
+	add_child(_flash_dano)
+
+
+func _ao_levar_dano() -> void:
+	if _flash_dano == null:
+		return
+	if _tween_dano != null and _tween_dano.is_valid():
+		_tween_dano.kill()
+
+	_flash_dano.color.a = 0.32
+	_tween_dano = create_tween()
+	_tween_dano.tween_property(_flash_dano, "color:a", 0.0, 0.35)
 
 
 func _ao_coletar(no_nivel: int, meta: int, nivel: int, total_comida: int) -> void:

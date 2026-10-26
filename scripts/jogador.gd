@@ -12,6 +12,7 @@ extends CharacterBody3D
 
 signal comida_coletada(no_nivel: int, meta: int, nivel: int, total: int)
 signal subiu_nivel(nivel: int)
+signal levou_dano
 
 ## Quantas comidas saudáveis o dino precisa por nível (sobe 1 a cada nível).
 const META_BASE: int = 8
@@ -49,11 +50,21 @@ var _acao: String = ""
 var _tempo_passo: float = 0.0
 var _movendo: bool = false
 
+## Atordoado pelo tronco: ignora o controle e desliza para trás.
+var _atordoado: float = 0.0
+var _levando_dano: bool = false
+var _modelo_rotacao_base := Vector3.ZERO
+var _modelo_escala_base := Vector3.ONE
+var _tween_dano: Tween = null
+
 
 func _ready() -> void:
 	posicao_inicial = global_position
 	checkpoint = posicao_inicial
 	rugido_area.monitoring = true
+	if modelo != null:
+		_modelo_rotacao_base = modelo.rotation_degrees
+		_modelo_escala_base = modelo.scale
 	_preparar_animacoes()
 
 
@@ -138,6 +149,10 @@ func _atualizar_animacao(delta: float) -> void:
 
 # ---------------------------------------------------------------- laço
 func _physics_process(delta: float) -> void:
+	if _atordoado > 0.0:
+		_processar_atordoado(delta)
+		return
+
 	if not is_on_floor():
 		velocity.y -= gravidade * delta
 	elif velocity.y < 0.0:
@@ -158,10 +173,7 @@ func _physics_process(delta: float) -> void:
 	_movendo = Vector2(velocity.x, velocity.z).length() > 0.1
 
 	move_and_slide()
-
-	# Rede de seguranca: nunca sai do corredor nem recua alem do inicio.
-	global_position.x = clampf(global_position.x, -limite_lateral, limite_lateral)
-	global_position.z = minf(global_position.z, posicao_inicial.z + limite_tras)
+	_aplicar_limites()
 
 	_quebrar_no_impacto()
 	_atualizar_animacao(delta)
@@ -266,6 +278,83 @@ func _onda_de_choque() -> void:
 	tween.chain().tween_callback(onda.queue_free)
 
 
+# ---------------------------------------------------------------- dano
+func levar_tronco() -> void:
+	if _levando_dano:
+		return
+	_levando_dano = true
+	_atordoado = 0.6
+	_rugindo = false
+	_acao = "dano"
+
+	# Empurrão para trás e para cima: dá tempo de ler o tombo sem punir.
+	velocity = Vector3(randf_range(-1.2, 1.2), 3.0, 9.5)
+
+	if anim != null:
+		anim.speed_scale = 1.0
+		if anim.has_animation("Jump"):
+			anim.play("Jump", 0.06)
+			anim.speed_scale = 1.15
+
+	Sons.tocar("pulo", -2.0, 0.55)
+	camera_rig.call("tremer", 0.3, 0.4)
+	_tumbrar()
+	levou_dano.emit()
+
+
+func _processar_atordoado(delta: float) -> void:
+	if not is_on_floor():
+		velocity.y -= gravidade * delta
+	elif velocity.y < 0.0:
+		velocity.y = 0.0
+
+	velocity.x = move_toward(velocity.x, 0.0, 16.0 * delta)
+	velocity.z = move_toward(velocity.z, 0.0, 22.0 * delta)
+	move_and_slide()
+	_aplicar_limites()
+	_atualizar_animacao(delta)
+
+	_atordoado = maxf(_atordoado - delta, 0.0)
+	if _atordoado <= 0.0:
+		_levando_dano = false
+		_acao = ""
+		if anim != null:
+			anim.speed_scale = 1.0
+
+
+func _tumbrar() -> void:
+	if modelo == null:
+		return
+	if _tween_dano != null and _tween_dano.is_valid():
+		_tween_dano.kill()
+
+	var escala_esmagada := Vector3(
+		_modelo_escala_base.x * 1.12,
+		_modelo_escala_base.y * 0.88,
+		_modelo_escala_base.z * 1.12
+	)
+	_tween_dano = create_tween()
+	_tween_dano.set_parallel(true)
+	_tween_dano.tween_property(
+		modelo, "rotation_degrees", _modelo_rotacao_base + Vector3(-360.0, 0.0, 0.0), 0.55
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_tween_dano.tween_property(modelo, "scale", escala_esmagada, 0.12)
+	_tween_dano.chain().tween_property(modelo, "scale", _modelo_escala_base, 0.28).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_tween_dano.chain().tween_callback(_restaurar_modelo)
+
+
+func _restaurar_modelo() -> void:
+	if modelo == null:
+		return
+	modelo.rotation_degrees = _modelo_rotacao_base
+	modelo.scale = _modelo_escala_base
+
+
+func _aplicar_limites() -> void:
+	global_position.x = clampf(global_position.x, -limite_lateral, limite_lateral)
+	global_position.z = minf(global_position.z, posicao_inicial.z + limite_tras)
+
+
 # ---------------------------------------------------------------- progresso
 func coletar(_tipo: int = 0) -> void:
 	total_comida += 1
@@ -295,6 +384,11 @@ func voltar_ao_checkpoint() -> void:
 	velocity = Vector3.ZERO
 	_acao = ""
 	_movendo = false
+	_atordoado = 0.0
+	_levando_dano = false
+	if _tween_dano != null and _tween_dano.is_valid():
+		_tween_dano.kill()
+	_restaurar_modelo()
 	if anim != null:
 		anim.speed_scale = 1.0
 	Sons.tocar("pulo", -4.0, 0.7)

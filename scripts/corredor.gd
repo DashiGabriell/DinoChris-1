@@ -11,6 +11,7 @@ extends Node3D
 
 const CENA_CAIXA: PackedScene = preload("res://scenes/caixa.tscn")
 const CENA_COMIDA: PackedScene = preload("res://scenes/coletavel.tscn")
+const CENA_TRONCO: PackedScene = preload("res://scenes/tronco.tscn")
 const CENA_ARVORES: PackedScene = preload("res://assets/modelos/props/arvores.glb")
 const SHADER_LAVA: Shader = preload("res://assets/shaders/lava.gdshader")
 
@@ -38,8 +39,17 @@ const ESPACO_ENTRE_OBSTACULOS: float = 20.0
 ## Margem de chão firme antes/depois de um buraco para o ponto seguro.
 const MARGEM_SEGURA: float = 2.4
 
+## Distância mínima e máxima de chão livre entre dois troncos rolantes (m).
+const TRONCO_ESPACO_MIN: float = 26.0
+const TRONCO_ESPACO_MAX: float = 42.0
+## O tronco nasce esta distância à frente do dino (m), com variação.
+const TRONCO_SPAWN_MIN: float = 26.0
+const TRONCO_SPAWN_MAX: float = 32.0
+
 ## 0 sorteia uma semente nova a cada partida; outro valor repete o caminho.
 @export var semente: int = 0
+## Liga/desliga os troncos rolantes (os testes desligam para isolar o resto).
+@export var troncos_ativos: bool = true
 
 var _rng := RandomNumberGenerator.new()
 var _pedacos: Array[Dictionary] = []
@@ -52,6 +62,8 @@ var _distancia: float = 0.0
 var _ultimo_obstaculo_z: float = 999.0
 var _proximo_tipo_comida: int = 0
 var _arvores_plantadas: int = 0
+var _proximo_tronco: float = 0.0
+var _tronco_atual: Node3D = null
 
 var _arvores: Array[Dictionary] = []
 var _malha_cubo: BoxMesh
@@ -71,6 +83,9 @@ func _ready() -> void:
 		_rng.randomize()
 	else:
 		_rng.seed = semente
+
+	# O primeiro tronco só aparece depois de alguns metros de aprendizado.
+	_proximo_tronco = _rng.randf_range(16.0, 24.0)
 
 	_jogador = get_tree().get_first_node_in_group("jogador") as Node3D
 	if _jogador == null:
@@ -93,6 +108,7 @@ func _process(_delta: float) -> void:
 		_gerar_pedaco()
 	_apagar_pedacos_antigos()
 	_atualizar_ponto_seguro()
+	_atualizar_troncos()
 
 
 func _physics_process(_delta: float) -> void:
@@ -511,6 +527,75 @@ func _perto_de_buraco(z: float) -> bool:
 			if z < float(buraco["inicio"]) + MARGEM_SEGURA and z > float(buraco["fim"]) - MARGEM_SEGURA:
 				return true
 	return false
+
+
+# ---------------------------------------------------------------- troncos
+func _atualizar_troncos() -> void:
+	if not troncos_ativos or _resgatando or _jogador == null:
+		return
+
+	if _tronco_atual != null and not is_instance_valid(_tronco_atual):
+		_tronco_atual = null
+	if _tronco_atual != null:
+		return
+	if _distancia < _proximo_tronco:
+		return
+	if not _jogador.is_on_floor():
+		return
+	if _perto_de_buraco(_jogador.global_position.z):
+		return
+	if _perto_de_buraco(_jogador.global_position.z - 5.0):
+		return
+
+	var z_spawn := _jogador.global_position.z - _rng.randf_range(TRONCO_SPAWN_MIN, TRONCO_SPAWN_MAX)
+	if not _chao_firme_em(z_spawn) or not _caminho_livre_ate(z_spawn, _jogador.global_position.z - 2.0):
+		# Não insiste a cada quadro: só tenta de novo depois de andar mais um pouco.
+		_proximo_tronco = _distancia + 2.0
+		return
+
+	_tronco_atual = _criar_tronco(z_spawn)
+	_proximo_tronco = _distancia + _rng.randf_range(TRONCO_ESPACO_MIN, TRONCO_ESPACO_MAX)
+
+
+func _criar_tronco(z_spawn: float) -> Node3D:
+	var tronco := CENA_TRONCO.instantiate() as Node3D
+	add_child(tronco)
+	tronco.global_position = Vector3(0.0, 0.42, z_spawn)
+	return tronco
+
+
+## Usado pelo teste e por ferramentas: cria um tronco sem esperar o sorteio.
+func forcar_tronco(distancia: float = 18.0) -> Node3D:
+	if _jogador == null:
+		return null
+	_tronco_atual = _criar_tronco(_jogador.global_position.z - distancia)
+	return _tronco_atual
+
+
+func tronco_ativo() -> bool:
+	return _tronco_atual != null and is_instance_valid(_tronco_atual)
+
+
+func _chao_firme_em(z: float) -> bool:
+	var espaco := get_world_3d().direct_space_state
+	var deslocamentos: Array[float] = [-0.7, 0.0, 0.7]
+	for deslocamento in deslocamentos:
+		var de := Vector3(0.0, 2.0, z + deslocamento)
+		var ate := Vector3(0.0, -1.5, z + deslocamento)
+		var consulta := PhysicsRayQueryParameters3D.create(de, ate)
+		consulta.collision_mask = 1
+		if espaco.intersect_ray(consulta).is_empty():
+			return false
+	return true
+
+
+func _caminho_livre_ate(z_inicio: float, z_fim: float) -> bool:
+	var z := z_inicio
+	while z < z_fim:
+		if _perto_de_buraco(z):
+			return false
+		z += 2.0
+	return true
 
 
 func _ao_encostar_lava(corpo: Node3D) -> void:
