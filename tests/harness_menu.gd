@@ -33,6 +33,8 @@ func _ready() -> void:
 	)
 	_checar(painel != null and not painel.visible, "painel comeca escondido")
 	_checar(Sons.musica_atual() == "menu", "menu toca a trilha do menu")
+	_checar(InputMap.has_action("iniciar"), "acao iniciar existe")
+	_checar(_tem_botao_start(), "botao Start mapeado no controle")
 	if painel == null or entrada == null or salvar == null or botao_nome == null:
 		_finalizar(nome_original)
 		return
@@ -62,6 +64,13 @@ func _ready() -> void:
 	_checar(not painel.visible, "CANCELAR fecha o painel")
 
 	_finalizar(nome_original)
+
+
+func _tem_botao_start() -> bool:
+	for evento in InputMap.action_get_events("iniciar"):
+		if evento is InputEventJoypadButton and evento.button_index == JOY_BUTTON_START:
+			return true
+	return false
 
 
 func _finalizar(nome_original: String) -> void:

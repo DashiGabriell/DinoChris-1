@@ -36,8 +36,8 @@ O jogo começa com **5 corações** (até **7**), cada erro custa no máximo **1
 - **Anti-softlock** — se o dino ficar 3 s preso com o avanço segurado, ele volta ao último ponto seguro **sem perder vida**.
 - **Game over fofo** — ao chegar a 0 corações aparece **QUASE!**, com **TENTAR NOVAMENTE** (recomeça com 5) e **SAIR** (volta ao menu). Não há contador de mortes nem cronômetro.
 - **Nome do jogador** — o menu permite digitar o nome (até 16 letras), salvo em `user://dados.cfg` e exibido no HUD.
-- **Acessibilidade** — botões grandes, foco amarelo, teclado e controle, D-pad como alternativa ao analógico, e um botão **EFEITOS: SUAVES** no painel de controles que reduz partículas e usa a trilha calma na fase.
-- **Feedback exagerado** — animações, sons, poeira, onda de choque, tremor de câmera e caixas voando.
+- **Acessibilidade** — botões grandes, foco amarelo, teclado e controle, D-pad como alternativa ao analógico, e um botão **EFEITOS: SUAVES** no painel de controles que reduz partículas e usa a trilha calma na fase. No menu, **Start** inicia a partida direto.
+- **Feedback exagerado** — animações, sons (com baque exclusivo de dano), poeira, onda de choque, tremor de câmera e caixas voando.
 
 ## Telas
 
@@ -57,6 +57,7 @@ O dino **não anda sozinho**: o avanço é manual. Segure para frente para corre
 | Pular | `Espaço` | `X` (Cruz) ou `B` (Bola) | `A` ou `B` |
 | Rugir | `E` | `Quadrado` ou `Triângulo` | `X` ou `Y` |
 | Morder | `F` | `L1` ou `R1` | `LB` ou `RB` |
+| Iniciar partida (menu) | — | `Start` ou `Options` | `Menu` ou `Options` |
 | Comer | Apenas chegue perto da comida | — | — |
 
 O Godot usa a nomenclatura de layout Xbox internamente, mas detecta o controle PlayStation automaticamente via SDL. Não é preciso plugin nem configuração. O analógico tem deadzone de 0.25 para o dino não andar sozinho.
@@ -128,10 +129,10 @@ O nome do jogador fica em `%APPDATA%\Godot\app_userdata\Dino-Chris\dados.cfg`. A
 │   ├── fontes/                    # Lilita One + Nunito SemiBold (OFL) e tema global
 │   ├── ceu/ceu-01.exr             # Panorama HDRI do céu
 │   └── ui/                        # Ícones SVG do HUD e do menu
-├── audio/                         # 6 efeitos WAV + 4 trilhas OGG originais
+├── audio/                         # 7 efeitos WAV + 4 trilhas OGG originais
 ├── tests/                         # 9 harnesses headless + captura visual
 ├── tools/rig/                     # Pipeline Blender que gera o rig e as animações
-├── tools/audio/                   # Compositor que gera a trilha sonora
+├── tools/audio/                   # Compositor das trilhas e do efeito de dano
 └── docs/img/                      # Imagens usadas neste README
 ```
 
@@ -145,7 +146,7 @@ O `inicio.md` detalha cada sistema, os ajustes rápidos no inspetor, as descober
 - **Dino rigado** — o T-Rex tem 23 ossos e 6 clipes (`Idle`, `Walk`, `Run`, `Jump`, `Attack`, `Roar`), gerados no Blender 5.2 por um pipeline Python próprio em `tools/rig/`. O `CharacterBody3D` move o personagem; as animações não têm root motion.
 - **Lava convincente** — o rio fica apenas 28 cm abaixo do chão, com shader `unshaded`, dois ruídos correndo no sentido do rio, faixas emissivas nas margens e uma luz laranja. Mais fundo, a borda esconderia o rio na câmera de trás.
 - **Céu HDRI** — panorama equiretangular 1024×512 com tonemap AgX e névoa configurada com `fog_sky_affect = 0.0` para o céu não virar uma cor chapada.
-- **Áudio próprio** — os seis efeitos e as quatro trilhas são sintetizados no projeto, sem samples de terceiros. O autoload `Sons` separa música e efeitos nos buses `Music` e `SFX`, liga o loop dos OGG e faz o crossfade mesmo com o jogo pausado no game over.
+- **Áudio próprio** — os sete efeitos e as quatro trilhas são sintetizados no projeto, sem samples de terceiros. O autoload `Sons` separa música e efeitos nos buses `Music` e `SFX`, liga o loop dos OGG e faz o crossfade mesmo com o jogo pausado no game over. A música fica em −4,9 dB, 10% abaixo do volume anterior.
 - **Interface** — tema global com **Lilita One** nos títulos e **Nunito SemiBold** no texto, ambos sob SIL Open Font License.
 
 ## Testes automáticos
@@ -155,14 +156,14 @@ O projeto tem 9 harnesses headless. Todos passam com código 0:
 | Teste | O que valida |
 |---|---|
 | `harness.tscn` | Corredor completo: geração, câmera, controles, pulo, árvores, fissura, lava, rugido, coleta, dano, respawn, 600 m gerados e limites |
-| `harness_menu.tscn` | Menu, botões, painel de nome, persistência e trilha do menu |
-| `integracao_menu.tscn` | **COMEÇAR** carrega a fase, o nome aparece no HUD e a trilha correta toca |
-| `harness_missao.tscn` | Comidas nos 4 tipos, HUD, barra, contador e subida de nível |
+| `harness_menu.tscn` | Menu, botões, painel de nome, persistência, trilha do menu e Start no controle |
+| `integracao_menu.tscn` | **Start** carrega a fase, o nome aparece no HUD e a trilha correta toca |
+| `harness_missao.tscn` | Comidas nos 4 tipos, HUD, barra, contador, subida de nível e pop-up centralizado |
 | `harness_mordida.tscn` | 6 animações, loops, mordida no teclado/controle, rugido, mordida no ar e troca Idle/Run |
 | `harness_ceu.tscn` | Panorama HDRI, névoa fora do céu, tonemap AgX e sombra do sol |
 | `harness_tronco.tscn` | Dano, empurrão e invulnerabilidade |
-| `harness_vidas.tscn` | 7 espaços de coração, 5 iniciais, cura, teto 7, danos, respawn, game over e trilha |
-| `harness_audio.tscn` | Buses `Music`/`SFX`, 4 trilhas carregadas, duração, loop OGG, troca e parada |
+| `harness_vidas.tscn` | 7 espaços de coração, 5 iniciais, cura, teto 7, danos, som de dano, respawn, game over e trilha |
+| `harness_audio.tscn` | Buses `Music`/`SFX`, volume −4,9 dB, som de dano, 4 trilhas carregadas, duração, loop OGG, troca e parada |
 
 Para rodar todos:
 
@@ -191,7 +192,7 @@ Para QA visual, `tests/captura.tscn` abre a fase (com janela) e salva prints em 
 - [ ] Animação de comer ao pegar a comida.
 - [ ] Rigar e animar o SpinoBob reaproveitando o pipeline de `tools/rig/`.
 - [ ] Fase 2 com perseguição invertida (o T-Rex atrás de uma fruta gigante).
-- [ ] Controle de volume de música e efeitos e um efeito de "uau" ao subir de nível.
+- [ ] Tela de opções com sliders de volume e um efeito de "uau" ao subir de nível.
 - [ ] Exportar `.exe` para Windows com o ícone do T-Rex.
 
 ## Créditos e licenças
@@ -200,7 +201,7 @@ Para QA visual, `tests/captura.tscn` abre a fase (com janela) e salva prints em 
 - **Godot Engine** — motor do jogo, licença MIT.
 - **Modelos 3D** — T-Rex do jogador, SpinoBob, árvores e props foram importados do Sketchfab. As licenças originais dos autores não estão documentadas no repositório; confira antes de redistribuir os arquivos.
 - **Fontes** — Lilita One e Nunito SemiBold sob SIL Open Font License. Os textos das licenças estão em `assets/fontes/OFL-*.txt`.
-- **Áudio** — efeitos e trilhas gerados por síntese dentro do projeto, sem samples de terceiros. O compositor fica em `tools/audio/gerar_musica.py`.
+- **Áudio** — efeitos e trilhas gerados por síntese dentro do projeto, sem samples de terceiros. Os geradores ficam em `tools/audio/gerar_musica.py` e `tools/audio/gerar_dano.py`.
 - **Céu HDRI** — arquivo incluído em `assets/ceu/ceu-01.exr`; a origem e a licença não estão documentadas no repositório. Verifique antes de redistribuir.
 
 Este repositório **não possui um arquivo `LICENSE`**: o código e os assets não têm uma licença de uso definida. Se quiser reutilizar alguma parte, fale com o autor primeiro.

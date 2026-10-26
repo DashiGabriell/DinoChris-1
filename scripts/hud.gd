@@ -12,6 +12,7 @@ const ICONE_SEMENTE := preload("res://assets/ui/icone_semente.svg")
 const ICONE_CORACAO := preload("res://assets/ui/icone_coracao.svg")
 const ICONE_CORACAO_VAZIO := preload("res://assets/ui/icone_coracao_vazio.svg")
 const TOTAL_CORACOES: int = 7
+const FATOR_TEMPO_AVISO: float = 0.6
 
 @onready var placa_nome: PanelContainer = $PlacaNome
 @onready var icone_nome: TextureRect = $IconeNome
@@ -232,21 +233,21 @@ func _ao_subir_nivel(nivel: int) -> void:
 	if _tween_aviso and _tween_aviso.is_valid():
 		_tween_aviso.kill()
 	_tween_aviso = create_tween()
-	_tween_aviso.tween_property(aviso, "modulate:a", 1.0, 0.16)
-	_tween_aviso.parallel().tween_property(aviso_fundo, "modulate:a", 1.0, 0.16)
+	_tween_aviso.tween_property(aviso, "modulate:a", 1.0, 0.16 * FATOR_TEMPO_AVISO)
+	_tween_aviso.parallel().tween_property(aviso_fundo, "modulate:a", 1.0, 0.16 * FATOR_TEMPO_AVISO)
 	if not calmo:
-		_tween_aviso.parallel().tween_property(aviso, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		_tween_aviso.parallel().tween_property(aviso_fundo, "scale", Vector2.ONE, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_tween_aviso.tween_interval(0.9)
-	_tween_aviso.tween_property(aviso, "modulate:a", 0.0, 0.3)
-	_tween_aviso.parallel().tween_property(aviso_fundo, "modulate:a", 0.0, 0.3)
+		_tween_aviso.parallel().tween_property(aviso, "scale", Vector2.ONE, 0.3 * FATOR_TEMPO_AVISO).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		_tween_aviso.parallel().tween_property(aviso_fundo, "scale", Vector2.ONE, 0.3 * FATOR_TEMPO_AVISO).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_tween_aviso.tween_interval(0.9 * FATOR_TEMPO_AVISO)
+	_tween_aviso.tween_property(aviso, "modulate:a", 0.0, 0.3 * FATOR_TEMPO_AVISO)
+	_tween_aviso.parallel().tween_property(aviso_fundo, "modulate:a", 0.0, 0.3 * FATOR_TEMPO_AVISO)
 
 	if calmo:
 		return
 	nivel_label.pivot_offset = nivel_label.size * 0.5
 	nivel_label.scale = Vector2(0.8, 0.8)
 	var tween_nivel := create_tween()
-	tween_nivel.tween_property(nivel_label, "scale", Vector2.ONE, 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween_nivel.tween_property(nivel_label, "scale", Vector2.ONE, 0.32 * FATOR_TEMPO_AVISO).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _pulsar_contador() -> void:

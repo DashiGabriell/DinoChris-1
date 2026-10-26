@@ -1,5 +1,5 @@
 extends Node
-## Teste de integração: menu carrega a fase e o nome aparece no HUD.
+## Teste de integração: Start no menu carrega a fase e o nome aparece no HUD.
 
 var _falhas: int = 0
 
@@ -22,13 +22,18 @@ func _ready() -> void:
 		_finalizar(nome_original)
 		return
 
-	botao.pressed.emit()
+	_checar(botao.pressed.get_connections().size() > 0, "botao COMECAR conectado")
+	var evento_iniciar := InputEventJoypadButton.new()
+	evento_iniciar.button_index = JOY_BUTTON_START
+	evento_iniciar.pressed = true
+	evento_iniciar.device = 0
+	tela.call("_unhandled_input", evento_iniciar)
 	for i in 8:
 		await get_tree().process_frame
 
 	var cena: Node = get_tree().current_scene
 	var nome_cena := "null" if cena == null else str(cena.name)
-	_checar(nome_cena == "Fase1", "COMEÇAR carrega a fase (atual: %s)" % nome_cena)
+	_checar(nome_cena == "Fase1", "Start carrega a fase (atual: %s)" % nome_cena)
 
 	if cena != null and cena.name == "Fase1":
 		var hud: Label = cena.get_node_or_null("HUD/Nome")

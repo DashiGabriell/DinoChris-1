@@ -128,6 +128,11 @@ func _atualizar_rotulo() -> void:
 
 
 func _unhandled_input(evento: InputEvent) -> void:
+	if evento.is_action_pressed("iniciar"):
+		get_viewport().set_input_as_handled()
+		if not painel_nome.visible and not painel_controles.visible:
+			_ao_comecar()
+		return
 	if not evento.is_action_pressed("ui_cancel"):
 		return
 	if painel_controles.visible:

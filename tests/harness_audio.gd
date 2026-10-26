@@ -9,8 +9,15 @@ func _ready() -> void:
 	_checar(AudioServer.get_bus_index("Music") >= 0, "bus Music existe")
 	_checar(AudioServer.get_bus_index("SFX") >= 0, "bus SFX existe")
 	_checar(Sons.process_mode == Node.PROCESS_MODE_ALWAYS, "Sons processa durante a pausa")
+	_checar(
+		is_equal_approx(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Music")), -4.9),
+		"musica 10% mais baixa"
+	)
+	_checar(Sons.possui_som("dano"), "som de dano carregado")
 
 	var streams: Dictionary = Sons.get("_streams")
+	var som_dano: AudioStream = streams.get("dano")
+	_checar(som_dano != null and som_dano.get_length() > 0.3, "som de dano tem duracao util")
 	for nome in ["musica_menu", "musica_fase", "musica_calmo", "musica_game_over"]:
 		var stream: AudioStream = streams.get(nome)
 		_checar(stream != null, "%s carregada" % nome)

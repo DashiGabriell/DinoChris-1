@@ -335,6 +335,7 @@ func receber_dano(_motivo: String = "") -> bool:
 	vidas = maxi(vidas - 1, 0)
 	_invulneravel = TEMPO_INVULNERAVEL
 	_tempo_piscar = 0.0
+	Sons.tocar("dano", -6.0 if Dados.modo_calmo else -4.0, randf_range(0.94, 1.04))
 	vidas_alteradas.emit(vidas, VIDAS_MAXIMAS)
 	levou_dano.emit()
 

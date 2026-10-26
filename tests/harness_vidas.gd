@@ -72,6 +72,7 @@ func _ready() -> void:
 	var antes_tronco: int = int(jogador.get("vidas"))
 	jogador.call("levar_tronco")
 	_checar(int(jogador.get("vidas")) == antes_tronco - 1, "tronco tira uma vida")
+	_checar(_tocou_som("dano"), "dano toca efeito sonoro")
 	jogador.call("levar_tronco")
 	_checar(int(jogador.get("vidas")) == antes_tronco - 1, "invulnerabilidade evita dano duplicado")
 	await _esperar_fisica(100)
@@ -153,6 +154,15 @@ func _contar_cheios(hud: Node) -> int:
 		if bool(coracao.get_meta("cheio", false)):
 			total += 1
 	return total
+
+
+func _tocou_som(nome: String) -> bool:
+	for filho in Sons.get_children():
+		if filho is AudioStreamPlayer:
+			var player := filho as AudioStreamPlayer
+			if player.stream != null and player.stream.resource_path.get_file().begins_with(nome + "."):
+				return true
+	return false
 
 
 func _esperar_fisica(quadros: int) -> void:

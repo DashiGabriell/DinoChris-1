@@ -23,6 +23,7 @@ func _ready() -> void:
 	var barra: ProgressBar = hud.get_node("Missao/Margem/Conteudo/Barra")
 	var total_label: Label = hud.get_node("Missao/Margem/Conteudo/Total")
 	var aviso: Label = hud.get_node("Aviso")
+	var aviso_fundo: PanelContainer = hud.get_node("AvisoFundo")
 
 	_checar(nivel_label.text == "NÍVEL 1", "HUD mostra nível 1 (achei '%s')" % nivel_label.text)
 	_checar(contador.text == "COMIDA: 0 / 8", "HUD mostra 0/8 (achei '%s')" % contador.text)
@@ -65,6 +66,10 @@ func _ready() -> void:
 	_checar(int(jogador.get("nivel")) == 2, "subiu para o nível 2 (achei %d)" % int(jogador.get("nivel")))
 	_checar(int(jogador.get("comida_no_nivel")) == 0, "barra do nível reiniciou em 0")
 	_checar(aviso.text == "NÍVEL 2!", "aviso de nível 2 apareceu (achei '%s')" % aviso.text)
+	_checar(
+		aviso.get_global_rect().get_center().distance_to(aviso_fundo.get_global_rect().get_center()) < 0.5,
+		"texto centralizado no pop-up"
+	)
 	_checar(nivel_label.text == "NÍVEL 2", "HUD mostra nível 2 (achei '%s')" % nivel_label.text)
 	_checar(contador.text == "COMIDA: 0 / 9", "HUD mostra nova meta 9 (achei '%s')" % contador.text)
 	_checar(barra.max_value == 9.0, "barra agora vai até 9 (achei %.1f)" % barra.max_value)
@@ -76,6 +81,9 @@ func _ready() -> void:
 		if fase.is_ancestor_of(no):
 			comidas_depois += 1
 	_checar(comidas_depois > 0, "comidas continuam sendo geradas (%d)" % comidas_depois)
+
+	await _esperar_fisica(54)
+	_checar(aviso.modulate.a < 0.05, "pop-up some em menos de 1 s")
 
 	_finalizar()
 

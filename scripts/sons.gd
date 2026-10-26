@@ -1,6 +1,6 @@
 extends Node
 
-const VOLUME_MUSICA_DB: float = -4.0
+const VOLUME_MUSICA_DB: float = -4.9
 const VOLUME_FADE_DB: float = -40.0
 
 var _streams: Dictionary = {}
@@ -22,6 +22,7 @@ func _ready() -> void:
 		"passo": load("res://audio/passo.wav"),
 		"pulo": load("res://audio/pulo.wav"),
 		"nivel": load("res://audio/nivel.wav"),
+		"dano": load("res://audio/dano.wav"),
 		"musica_fase": _carregar_musica("res://audio/musica_fase.ogg"),
 		"musica_calmo": _carregar_musica("res://audio/musica_calmo.ogg"),
 		"musica_menu": _carregar_musica("res://audio/musica_menu.ogg"),
@@ -170,3 +171,8 @@ func esta_tocando_musica() -> bool:
 func possui_musica(nome: String) -> bool:
 	var stream: AudioStream = _streams.get("musica_" + nome)
 	return stream != null and stream.get_length() > 1.0
+
+
+func possui_som(nome: String) -> bool:
+	var stream: AudioStream = _streams.get(nome)
+	return stream != null and stream.get_length() > 0.05
