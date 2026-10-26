@@ -14,6 +14,7 @@ var _tempo_parado: float = 0.0
 
 
 func _ready() -> void:
+	Sons.tocar_musica("calmo" if Dados.modo_calmo else "fase")
 	_ultimo_z = jogador.global_position.z
 	game_over.tentar_novamente.connect(_reiniciar_fase)
 	game_over.sair.connect(_sair_para_menu)

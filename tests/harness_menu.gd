@@ -32,6 +32,7 @@ func _ready() -> void:
 		"cena da fase existe"
 	)
 	_checar(painel != null and not painel.visible, "painel comeca escondido")
+	_checar(Sons.musica_atual() == "menu", "menu toca a trilha do menu")
 	if painel == null or entrada == null or salvar == null or botao_nome == null:
 		_finalizar(nome_original)
 		return

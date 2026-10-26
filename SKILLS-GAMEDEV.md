@@ -25,7 +25,7 @@ Legenda de encaixe:
 | [godot-nodes-scenes][gns] | Perfeito | `scenes/jogador.tscn`, `caixa.tscn`, `coletavel.tscn`, `fase_1.tscn`; autoloads `Dados` e `Sons`; instanciação de caixas, comidas e árvores em `scripts/corredor.gd`; cuidados com `queue_free()` e `is_instance_valid()`. |
 | [godot-physics][gph] | Perfeito | `CharacterBody3D` do T-Rex, `Area3D` do rugido e da lava, `StaticBody3D` das caixas, camadas 1–4 (`Cenario`, `Jogador`, `Quebravel`, `Gatilho`), `get_slide_collision()` e consultas de sobreposição. Cobre também Jolt Physics. |
 | [godot-animation][gan] | Perfeito | `AnimationPlayer` em `Modelo/AnimationPlayer` (`Idle`, `Walk`, `Run`, `Jump`, `Attack`, `Roar`), loops, `speed_scale` e `animation_finished`; `Tween` da onda de choque e do HUD. |
-| [godot-audio][gau] | Perfeito | `scripts/sons.gd` (autoload), `AudioStreamPlayer`/`AudioStreamPlayer3D`, volume em dB, pitch aleatório dos passos e futura separação em buses (`Master`, `SFX`, `Music`). |
+| [godot-audio][gau] | Perfeito | `scripts/sons.gd` (autoload), `AudioStreamPlayer`/`AudioStreamPlayer3D`, volume em dB, pitch aleatório dos passos, buses `SFX`/`Music`, loops OGG e crossfade entre trilhas. |
 | [godot-shaders][gsh] | Perfeito | `assets/shaders/lava.gdshader`: shader `spatial` unshaded, ruído animado com `TIME`/`UV`, emissão e uniforms. Serve para novos efeitos de água, lava e materiais do cenário. |
 | [godot-signals-groups][gsg] | Perfeito | Grupos `quebravel` e `coletavel`, sinais `comida_coletada` e `subiu_nivel`, chamadas por grupo e desacoplamento entre jogador, HUD e fase. |
 | [godot-ui-control][gui] | Perfeito | `scenes/tela_inicial.tscn` e HUD: anchors, containers, `Theme`, foco amarelo navegável por D-pad e botões enormes. |
@@ -43,7 +43,7 @@ Legenda de encaixe:
 | [physics-tuning][gpt] | Alto | Gravidade 24, força de pulo 7.5, velocidade 5–6 m/s, distância de salto ~3,7 m, prevenção de tunneling em quedas e ajuste de camadas/massas se o Jolt mostrar jitter. |
 | [level-design][gld] | Alto | Métricas do personagem, largura mínima de 8 m, buracos de no máximo 2,6 m, curvas suaves, obstáculos macios e as regras de anti-softlock de `scripts/fase.gd`. |
 | [game-ui-ux][gux] | Alto | Menu inicial, painel de nome, HUD de nível/comida, escalonamento em 1280×720, áreas seguras e navegação por controle. |
-| [audio-design][gad] | Alto | Arquitetura de buses, variação de SFX, ducking e, no futuro, trilha em loop e som de "uau" ao subir de nível. |
+| [audio-design][gad] | Alto | Arquitetura de buses, variação de SFX, trilhas em loop para menu/fase/calmo/game over, crossfade e som de "uau" ao subir de nível. |
 | [performance-optimization][gpo] | Alto | Corredor infinito com `queue_free()` dos pedaços antigos, reutilização de moldes de árvore, orçamento de draw calls, partículas e alocações por frame. |
 | [save-systems][gsv] | Alto | `scripts/dados.gd` com `user://dados.cfg`: escolha do que persistir, escrita segura, versão do arquivo e migração futura de nome/progresso. |
 | [shader-programming][gsp] | Alto | Fundamentos de UV, ruído, dissolve, outline e fresnel para evoluir a lava e criar efeitos de impacto sem depender só da sintaxe do Godot. |

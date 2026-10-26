@@ -25,6 +25,7 @@ func _ao_morrer() -> void:
 		return
 	visible = true
 	get_tree().paused = true
+	Sons.tocar_musica("game_over", 0.7)
 	Sons.tocar("caixa", -16.0, 0.55)
 	botao_tentar.grab_focus()
 

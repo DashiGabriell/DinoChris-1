@@ -34,6 +34,8 @@ func _ready() -> void:
 		var hud: Label = cena.get_node_or_null("HUD/Nome")
 		_checar(hud != null and hud.text == "Chris", "nome do jogador aparece no HUD")
 		_checar(cena.get_node_or_null("TRex") != null, "TRex existe na fase carregada")
+		var trilha := "calmo" if Dados.modo_calmo else "fase"
+		_checar(Sons.musica_atual() == trilha, "fase troca para a trilha %s" % trilha)
 
 	_finalizar(nome_original)
 

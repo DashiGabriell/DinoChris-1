@@ -21,6 +21,7 @@ const CENA_FASE := "res://scenes/fase_1.tscn"
 
 
 func _ready() -> void:
+	Sons.tocar_musica("menu")
 	botao_comecar.pressed.connect(_ao_comecar)
 	botao_nome.pressed.connect(_abrir_nome)
 	botao_como_jogar.pressed.connect(_abrir_controles)

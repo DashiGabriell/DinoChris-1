@@ -217,6 +217,19 @@ O dino começa com **5 corações**, pode chegar a **7** e só perde 1 por obst�
 - O HUD (canto superior direito) mostra `NÍVEL`, `COMIDA: X / meta`, a barra do nível e o `TOTAL` acumulado.
 - As comidas vêm em trilhas de 3 a 5 unidades; cada fissura ou rio de lava ainda ganha uma comida-recompensa flutuando no meio do salto.
 
+### Música e mixagem
+
+A trilha é **original**, sintetizada no próprio projeto e sem direitos autorais de terceiros:
+
+- **Menu**: tema calmo e convidativo, mais lento, com marimba, flauta e pad.
+- **Partida**: tema de aventura na selva, com marimba, flauta, ukulele, baixo e percussão leve.
+- **Modo calmo**: a mesma melodia em versão mais lenta e sem bateria forte.
+- **Game over**: variação curta e fofa, sem sustos.
+
+Tudo fica em loop com emenda suave. Ao trocar de tela, `scripts/sons.gd` faz **crossfade** e continua processando durante a pausa do game over. Os efeitos vão para o bus `SFX` e a música para o bus `Music`, deixando o volume geral controlável sem mexer em cada arquivo.
+
+Para regerar as faixas: `python tools/audio/gerar_musica.py` (requer Python 3, NumPy e FFmpeg). O script compõe, mistura, normaliza e exporta os OGGs; não baixa nenhum áudio externo.
+
 ---
 
 ## 8. Anti-softlock (corredor com avanço manual)
@@ -285,7 +298,7 @@ Depois disso: arte do dino, corredor procedural da fase 1, perseguição inverti
 
 ## 13. Estado atual do projeto (implementado)
 
-Já existe uma fatia vertical jogável e **infinita**: tela inicial com nome do jogador e um corredor procedural sem fim (pedaços de 36 m gerados à frente e reciclados atrás). Cada pedaço traz árvores do GLB, samambaias, caixas, comidas e, a partir do segundo, fissuras e rios de lava que o dino precisa pular. O dino começa com **5 corações** (máximo 7); cair, encostar na lava ou trombar num tronco tira 1 coração e devolve o dino logo depois do obstáculo, com invulnerabilidade curta. Caixas podem soltar corações de cura. Ao chegar a 0, aparece um game over fofo com **TENTAR NOVAMENTE** e **SAIR**. A missão é comer bem: cada comida conta para o nível e o HUD mostra o contador e a barra. O dino **só anda quando o jogador manda** e aceita teclado, analógico e D-pad.
+Já existe uma fatia vertical jogável e **infinita**: tela inicial com nome do jogador e um corredor procedural sem fim (pedaços de 36 m gerados à frente e reciclados atrás). Cada pedaço traz árvores do GLB, samambaias, caixas, comidas e, a partir do segundo, fissuras e rios de lava que o dino precisa pular. O dino começa com **5 corações** (máximo 7); cair, encostar na lava ou trombar num tronco tira 1 coração e devolve o dino logo depois do obstáculo, com invulnerabilidade curta. Caixas podem soltar corações de cura. Ao chegar a 0, aparece um game over fofo com **TENTAR NOVAMENTE** e **SAIR**. A missão é comer bem: cada comida conta para o nível e o HUD mostra o contador e a barra. O jogo tem trilha original em loop, com temas próprios para menu, partida, modo calmo e game over. O dino **só anda quando o jogador manda** e aceita teclado, analógico e D-pad.
 
 ### Como rodar (Windows)
 
@@ -331,9 +344,12 @@ Com o controle plugado, o Godot já reconhece o PlayStation automaticamente: ana
 | `scripts/game_over.gd` | Overlay de fim de vidas, pausa e sinais dos botões |
 | `scripts/fase.gd` | Anti-softlock, game over e troca de cena |
 | `scripts/corredor.gd` | Gerador procedural infinito: chão, paredes, fissuras, lava, árvores, caixas e comidas |
-| `scripts/sons.gd` | Autoload que toca os efeitos (2D e 3D) |
+| `scripts/sons.gd` | Autoload de áudio: buses `Music`/`SFX`, efeitos 2D/3D, música e crossfade |
 | `assets/ui/icone_coracao*.svg` | Coração cheio e vazio do HUD |
-| `audio/*.wav` | Sons gerados por síntese (sem direitos autorais) |
+| `audio/*.wav` | Efeitos gerados por síntese (sem direitos autorais) |
+| `audio/musica_*.ogg` | Trilhas originais: menu, fase, calmo e game over |
+| `tools/audio/gerar_musica.py` | Compositor/sintetizador que gera e normaliza as trilhas |
+| `tests/harness_audio.tscn` | Teste dos buses, streams, loops e troca de trilhas |
 | `tests/harness.tscn` | Teste de fumaça do corredor: geração, fissura, lava, respawn, controles e limites |
 | `tests/harness_mordida.tscn` | Teste dos ataques: comando de mordida, rugido, mordida no ar e troca de animações |
 | `tests/harness_ceu.tscn` | Teste do céu HDRI: panorama, névoa fora do céu, tonemap e sombra |
@@ -480,9 +496,10 @@ godot --headless --path . res://tests/harness_mordida.tscn
 godot --headless --path . res://tests/harness_ceu.tscn
 godot --headless --path . res://tests/harness_tronco.tscn
 godot --headless --path . res://tests/harness_vidas.tscn
+godot --headless --path . res://tests/harness_audio.tscn
 ```
 
-O primeiro valida o corredor inteiro: câmera, dino parado sem input, avanço/recuo manuais, mapeamento de joystick (analógico X/Y, D-pad e botões), pulo, lateral, árvores do GLB, fissura e lava geradas, rugido quebrando caixa, coleta, queda na fissura e na lava com volta ao ponto seguro, geração 600 m à frente com pedaços antigos apagados e limites laterais. O segundo valida a missão: comidas no corredor nos 4 tipos, HUD (nível, contador, barra, total) e subida de nível. O terceiro valida o menu e a persistência do nome. O quarto confirma que **COMEÇAR** troca de cena e que o nome aparece no HUD. O quinto valida os ataques e as animações: os 6 clipes importados, loops corretos, mordida mapeada em teclado e controle, mordida quebrando a caixa da frente, rugido sem virar mordida, mordida no ar não interrompendo o pulo, e a troca Idle ↔ Run pela velocidade. O sexto valida o céu: fundo em Sky, material PanoramaSkyMaterial apontando para `ceu-01.exr`, névoa fora do céu (`fog_sky_affect`), tonemap AgX e sol com sombra. O sétimo valida o tronco: dano, empurrão e ausência de dano duplicado durante a invulnerabilidade. O oitavo valida as vidas: HUD com 7 espaços, 5 iniciais, coração de caixa, teto 7, dano de tronco/buraco/lava, respawn depois do obstáculo e game over com os botões. Todos saem com código 0 quando passam.
+O primeiro valida o corredor inteiro: câmera, dino parado sem input, avanço/recuo manuais, mapeamento de joystick (analógico X/Y, D-pad e botões), pulo, lateral, árvores do GLB, fissura e lava geradas, rugido quebrando caixa, coleta, queda na fissura e na lava com volta ao ponto seguro, geração 600 m à frente com pedaços antigos apagados e limites laterais. O segundo valida a missão: comidas no corredor nos 4 tipos, HUD (nível, contador, barra, total) e subida de nível. O terceiro valida o menu e a persistência do nome. O quarto confirma que **COMEÇAR** troca de cena e que o nome aparece no HUD. O quinto valida os ataques e as animações: os 6 clipes importados, loops corretos, mordida mapeada em teclado e controle, mordida quebrando a caixa da frente, rugido sem virar mordida, mordida no ar não interrompendo o pulo, e a troca Idle ↔ Run pela velocidade. O sexto valida o céu: fundo em Sky, material PanoramaSkyMaterial apontando para `ceu-01.exr`, névoa fora do céu (`fog_sky_affect`), tonemap AgX e sol com sombra. O sétimo valida o tronco: dano, empurrão e ausência de dano duplicado durante a invulnerabilidade. O oitavo valida as vidas: HUD com 7 espaços, 5 iniciais, coração de caixa, teto 7, dano de tronco/buraco/lava, respawn depois do obstáculo e game over com os botões. O nono valida o áudio: buses `Music`/`SFX`, as quatro trilhas carregadas, duração, loop, troca de faixa e parada da música. Todos saem com código 0 quando passam.
 
 ### Ajustes rápidos (no inspetor, sem código)
 
@@ -500,6 +517,9 @@ O primeiro valida o corredor inteiro: câmera, dino parado sem input, avanço/re
 - Cada pedaço tem **um** `StaticBody3D` com vários `CollisionShape3D` (chão + paredes). Os pedaços que ficam 58 m para trás são liberados inteiros, junto com suas caixas, comidas e árvores.
 - Não dá para mudar `Area3D.monitoring` dentro de `body_entered`; o coração usa `set_deferred("monitoring", false)` para evitar o erro "Function blocked during in/out signal".
 - O game over fica em `process_mode = ALWAYS` e pausa a árvore; os botões continuam funcionando. Antes de trocar de cena, `fase.gd` faz `get_tree().paused = false`.
+- `Sons` também usa `process_mode = ALWAYS`: assim o crossfade da música continua mesmo com o jogo pausado no game over.
+- Música não toca em loop só por estar em OGG: `Sons` liga `loop = true` no `AudioStreamOggVorbis` ao carregar cada trilha.
+- A trilha da fase troca para `musica_calmo` quando `Dados.modo_calmo` está ativo; o menu e o game over têm temas próprios.
 - Ao encerrar o jogo no meio de um efeito sonoro, o Godot pode imprimir um aviso de áudio "ainda em uso". É do desligamento do AudioServer, não afeta o jogo.
 
 ### Próximos passos sugeridos
@@ -507,7 +527,7 @@ O primeiro valida o corredor inteiro: câmera, dino parado sem input, avanço/re
 1. Animação de "comer" ao pegar a comida (hoje a comida some sem reação do dino).
 2. Rigar e animar o `spinoBob.glb` (inimigo) reaproveitando o mesmo pipeline de `tools/rig/`.
 3. Fase 2 com a perseguição invertida (T-Rex atrás de uma fruta gigante).
-4. Trilha sonora em loop e um "uau" ao passar de nível.
+4. Controle de volume de música/efeitos e um "uau" ao passar de nível.
 5. Exportar `.exe` com ícone do T-Rex.
 
 ### Pendências conhecidas do rig

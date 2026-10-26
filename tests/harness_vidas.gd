@@ -126,6 +126,8 @@ func _ready() -> void:
 	_checar(not bool(jogador.call("esta_vivo")), "jogador fica sem vidas")
 	_checar(game_over.visible, "game over aparece")
 	_checar(get_tree().paused, "jogo pausa no game over")
+	_checar(Sons.musica_atual() == "game_over", "game over troca a trilha")
+	_checar(Sons.esta_tocando_musica(), "trilha continua durante a pausa")
 	_checar(
 		game_over.get_node("Centro/Caixa/Margem/Conteudo/Titulo").text == "QUASE!",
 		"titulo fofo do game over"
