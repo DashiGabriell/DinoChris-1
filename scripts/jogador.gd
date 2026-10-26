@@ -11,6 +11,7 @@ extends CharacterBody3D
 ## AnimationPlayer dentro do nó Modelo: Idle, Walk, Run, Jump, Attack e Roar.
 
 signal comida_coletada(no_nivel: int, meta: int, nivel: int, total: int)
+signal comida_tipo_coletada(tipo: int)
 signal subiu_nivel(nivel: int)
 signal levou_dano
 
@@ -356,9 +357,10 @@ func _aplicar_limites() -> void:
 
 
 # ---------------------------------------------------------------- progresso
-func coletar(_tipo: int = 0) -> void:
+func coletar(tipo: int = 0) -> void:
 	total_comida += 1
 	comida_no_nivel += 1
+	comida_tipo_coletada.emit(tipo)
 
 	if comida_no_nivel >= meta_nivel():
 		comida_no_nivel = 0
